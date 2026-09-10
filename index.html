@@ -202,22 +202,6 @@
     }
   }
 
-  .statusbar {
-    flex: none;
-    height: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--s-5);
-    font-family: var(--font-mono);
-    font-size: 12px;
-    letter-spacing: 0.02em;
-    color: var(--text);
-    background: var(--bg);
-  }
-  .statusbar .sb-right { display: flex; align-items: center; gap: 6px; }
-  .statusbar svg { width: 15px; height: 15px; }
-
   .topbar {
     flex: none;
     height: 54px;
@@ -1588,15 +1572,6 @@
 <body>
 <div id="page">
   <div id="device">
-    <div class="statusbar" aria-hidden="true">
-      <span id="clock" class="mono">12:20</span>
-      <span class="sb-right">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 20h.01M6 20v-2M10 20v-5M14 20v-9M18 20V7"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 13a10 10 0 0 1 14 0M8.5 16.5a5 5 0 0 1 7 0M2 8.8a15 15 0 0 1 20 0M12 20h.01"/></svg>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="18" height="10" rx="2"/><path d="M22 11v2" stroke-linecap="round"/><rect x="4" y="9" width="12" height="6" rx="1" fill="currentColor"/></svg>
-      </span>
-    </div>
-
     <div id="shell"><!-- topbar + screen + sticky + nav будуються у JS --></div>
 
     <div id="overlay" aria-hidden="true"></div>
@@ -2594,59 +2569,119 @@ function itemArt(item, big) {
 }
 
 /**
- * Ілюстрація страви — стилізована лінійна графіка у бренд-стилі (не фото).
- * Fallback, коли для позиції ще немає фото.
+ * Ілюстрація страви — щільна стилізована графіка у бренд-стилі (чорне тло + золото),
+ * не фото. Fallback, коли для позиції ще немає справжнього знімка.
  */
+var _faSeq = 0;
 function foodArt(kind, big) {
-  var tile =
-    '<defs><pattern id="fg-' + kind + '" width="12" height="12" patternUnits="userSpaceOnUse">' +
-    '<path d="M12 0H0V12" fill="none" stroke="var(--line)" stroke-width="1"/></pattern></defs>' +
-    '<rect width="96" height="96" fill="url(#fg-' + kind + ')"/>';
+  var u = 'fa' + (++_faSeq) + '-';
+  var defs =
+    '<defs>' +
+      '<radialGradient id="@bg" cx="50%" cy="38%" r="72%">' +
+        '<stop offset="0" stop-color="#221d12"/><stop offset="0.55" stop-color="#151109"/><stop offset="1" stop-color="#0c0a06"/>' +
+      '</radialGradient>' +
+      '<linearGradient id="@gold" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#ffe14d"/><stop offset="0.5" stop-color="#f6ce05"/><stop offset="1" stop-color="#caa300"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="@bread" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#e7c98c"/><stop offset="0.5" stop-color="#c99a52"/><stop offset="1" stop-color="#8f6531"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="@meat" x1="0" y1="0" x2="0" y2="1">' +
+        '<stop offset="0" stop-color="#8a4a2c"/><stop offset="1" stop-color="#582a17"/>' +
+      '</linearGradient>' +
+    '</defs>';
+  var frame =
+    '<rect width="96" height="96" rx="10" fill="url(#@bg)"/>' +
+    '<ellipse cx="48" cy="82" rx="34" ry="7" fill="#000" opacity="0.45"/>' +
+    '<path d="M2 2 h20 M2 2 v20 M94 94 h-20 M94 94 v-20" stroke="#f6ce05" stroke-width="2" opacity="0.25" fill="none"/>';
+  var steam =
+    '<g stroke="#efe6cf" stroke-width="2.4" stroke-linecap="round" fill="none" opacity="0.28">' +
+      '<path d="M40 20 q-5 -7 0 -13"/><path d="M52 18 q6 -7 0 -14"/></g>';
+
   var g = {
+    // Класична шаурма в лаваші, зріз під кутом
     shawarma:
-      '<path d="M40 14 L58 14 L70 74 Q56 86 48 86 Q40 86 28 74 Z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>' +
-      '<path d="M35 30 H63 M33 44 H67 M33 58 H67 M37 70 H61" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>' +
-      '<path d="M40 14 L58 14" stroke="var(--text)" stroke-width="5" stroke-linecap="round"/>',
+      steam +
+      '<path d="M34 26 q14 -8 28 0 l7 46 q-4 8 -21 8 q-17 0 -21 -8 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<path d="M37 33 q11 -5 22 0 l4 30 q-3 5 -15 5 q-12 0 -15 -5 z" fill="url(#@meat)"/>' +
+      '<path d="M39 44 q9 4 18 0 M39 52 q9 4 18 0" stroke="#e8b84e" stroke-width="3" stroke-linecap="round" fill="none"/>' +
+      '<circle cx="44" cy="40" r="2.4" fill="#c6412f"/><circle cx="53" cy="47" r="2.2" fill="#7fae3c"/>' +
+      '<path d="M34 26 q14 -8 28 0" fill="none" stroke="#fff2cf" stroke-width="2" opacity="0.5"/>',
+    // Шаучак — у булці
     shauchak:
-      '<path d="M22 40 Q48 18 74 40 Z" fill="var(--accent)" stroke="var(--text)" stroke-width="3"/>' +
-      '<rect x="22" y="42" width="52" height="10" rx="2" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M20 56 Q48 70 76 56" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>' +
-      '<path d="M22 62 Q48 82 74 62 L74 66 Q48 86 22 66 Z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>',
+      steam +
+      '<path d="M24 44 q24 -22 48 0 q0 4 -4 5 h-40 q-4 -1 -4 -5 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<circle cx="38" cy="35" r="1.6" fill="#fff2cf"/><circle cx="48" cy="31" r="1.6" fill="#fff2cf"/><circle cx="58" cy="35" r="1.6" fill="#fff2cf"/>' +
+      '<path d="M22 50 h52 q-2 8 -8 9 q-18 4 -36 0 q-6 -1 -8 -9 z" fill="url(#@meat)"/>' +
+      '<path d="M22 50 q26 12 52 0" fill="none" stroke="#7fae3c" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M25 61 q23 12 46 0 l0 4 q-23 12 -46 0 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>',
+    // Хот-дог
     hotdog:
-      '<rect x="18" y="40" width="60" height="18" rx="9" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<rect x="22" y="36" width="52" height="12" rx="6" fill="var(--accent)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M26 42 q8 -8 16 0 q8 8 16 0 q8 -8 12 0" fill="none" stroke="var(--text)" stroke-width="3" stroke-linecap="round"/>',
+      '<path d="M18 52 q30 12 60 0 l0 5 q-30 12 -60 0 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<rect x="20" y="40" width="56" height="15" rx="7.5" fill="#a5502f" stroke="#4a2311" stroke-width="2.5"/>' +
+      '<path d="M18 42 q30 -12 60 0 l0 4 q-30 -12 -60 0 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<path d="M26 47 q7 -6 14 0 q7 6 14 0 q7 -6 12 0" fill="none" stroke="url(#@gold)" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M28 44 q8 4 16 0 q8 -4 16 0" fill="none" stroke="#c6412f" stroke-width="2.6" stroke-linecap="round"/>',
+    // Сулугуні — тягучий сир у лаваші
     suluguni:
-      '<path d="M38 16 H58 L68 72 Q48 84 28 72 Z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>' +
-      '<circle cx="42" cy="40" r="4" fill="var(--accent)"/><circle cx="54" cy="52" r="4" fill="var(--accent)"/><circle cx="46" cy="62" r="3.5" fill="var(--accent)"/>' +
-      '<path d="M38 16 H58" stroke="var(--text)" stroke-width="5" stroke-linecap="round"/>',
+      steam +
+      '<path d="M34 24 q14 -7 28 0 l6 48 q-4 7 -20 7 q-16 0 -20 -7 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<path d="M40 34 q8 -3 16 0 l3 30 q-2 4 -11 4 q-9 0 -11 -4 z" fill="#f2e6c2" stroke="#d8c48a" stroke-width="2"/>' +
+      '<path d="M45 40 q3 8 -1 16 q4 8 0 14" fill="none" stroke="#fff8e6" stroke-width="2.4" stroke-linecap="round"/>' +
+      '<circle cx="46" cy="45" r="2" fill="#7fae3c"/><circle cx="52" cy="55" r="2" fill="#7fae3c"/>',
+    // Фрі
     fries:
-      '<path d="M30 44 H66 L62 82 H34 Z" fill="var(--accent)" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>' +
-      '<path d="M36 14 V44 M44 10 V44 M52 12 V44 M60 16 V44" stroke="var(--text)" stroke-width="5" stroke-linecap="round"/>',
+      '<path d="M28 46 h40 l-5 30 q-15 5 -30 0 z" fill="#5a3a12" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<g fill="url(#@gold)" stroke="#9a7b00" stroke-width="1.4">' +
+        '<rect x="31" y="12" width="7" height="40" rx="2.5" transform="rotate(-9 34 32)"/>' +
+        '<rect x="41" y="9" width="7" height="44" rx="2.5"/>' +
+        '<rect x="50" y="12" width="7" height="42" rx="2.5" transform="rotate(7 53 33)"/>' +
+        '<rect x="58" y="16" width="7" height="38" rx="2.5" transform="rotate(14 61 35)"/>' +
+      '</g>',
+    // Нагетси
     nuggets:
-      '<path d="M28 40 q6 -12 18 -8 q14 -6 20 8 q10 4 4 16 q4 12 -10 12 q-10 8 -20 -2 q-14 0 -12 -14 q-8 -6 0 -14z" fill="var(--accent)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M40 46 h2 M52 44 h2 M46 56 h2" stroke="var(--text)" stroke-width="4" stroke-linecap="round"/>',
+      '<g fill="url(#@gold)" stroke="#9a7b00" stroke-width="2">' +
+        '<path d="M24 46 q4 -12 16 -9 q10 -8 18 2 q10 -1 8 11 q3 10 -9 12 q-8 8 -18 1 q-12 2 -13 -10 q-8 -5 0 -10z"/>' +
+        '<path d="M52 60 q3 -8 12 -6 q8 -5 12 3 q7 0 5 8 q1 7 -7 8 q-6 5 -12 0 q-8 1 -9 -7 q-5 -4 -1 -8z"/>' +
+      '</g>' +
+      '<path d="M32 46 h3 M42 42 h3 M38 52 h3" stroke="#7a5f00" stroke-width="3" stroke-linecap="round"/>',
+    // Фалафель у лаваші (vege — зелений акцент)
     falafel:
-      '<path d="M40 14 H58 L66 66 Q48 80 30 66 Z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3" stroke-linejoin="round"/>' +
-      '<circle cx="44" cy="40" r="5" fill="var(--ok)"/><circle cx="54" cy="50" r="5" fill="var(--ok)"/><circle cx="46" cy="60" r="4.5" fill="var(--ok)"/>',
+      steam +
+      '<path d="M34 24 q14 -7 28 0 l6 48 q-4 7 -20 7 q-16 0 -20 -7 z" fill="url(#@bread)" stroke="#3a2913" stroke-width="2.5"/>' +
+      '<g fill="#5f7d2e" stroke="#3f5a1c" stroke-width="1.6">' +
+        '<circle cx="44" cy="40" r="5.5"/><circle cx="54" cy="49" r="5.5"/><circle cx="45" cy="59" r="5"/><circle cx="53" cy="66" r="4.5"/>' +
+      '</g>' +
+      '<path d="M40 36 q8 -3 16 0" stroke="#7fae3c" stroke-width="3" stroke-linecap="round" fill="none"/>',
+    // Дитячий набір — коробочка з личком
     kids:
-      '<rect x="24" y="30" width="48" height="42" rx="4" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M24 44 H72" stroke="var(--text)" stroke-width="3"/>' +
-      '<circle cx="40" cy="58" r="5" fill="var(--accent)"/><circle cx="56" cy="58" r="5" fill="var(--accent)"/>' +
-      '<path d="M34 24 L48 34 L62 24" fill="none" stroke="var(--accent)" stroke-width="4" stroke-linecap="round"/>',
+      '<path d="M24 34 h48 l-4 40 q-20 6 -40 0 z" fill="url(#@gold)" stroke="#9a7b00" stroke-width="2.5"/>' +
+      '<path d="M24 34 l6 -10 h36 l6 10 z" fill="#caa300" stroke="#9a7b00" stroke-width="2.5"/>' +
+      '<circle cx="40" cy="52" r="3.5" fill="#17140a"/><circle cx="56" cy="52" r="3.5" fill="#17140a"/>' +
+      '<path d="M40 62 q8 7 16 0" fill="none" stroke="#17140a" stroke-width="3.5" stroke-linecap="round"/>',
     sauce:
-      '<path d="M40 20 h16 v6 l6 8 v40 a6 6 0 0 1 -6 6 h-16 a6 6 0 0 1 -6 -6 v-40 l6 -8 z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<rect x="40" y="44" width="16" height="20" fill="var(--accent)"/>',
+      '<path d="M40 22 h16 v6 l5 8 v38 a6 6 0 0 1 -6 6 h-14 a6 6 0 0 1 -6 -6 v-38 l5 -8 z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="2.5"/>' +
+      '<rect x="41" y="46" width="14" height="20" rx="2" fill="url(#@gold)"/>',
+    // Кола — склянка з льодом
     cola:
-      '<path d="M36 18 h24 l-3 60 a5 5 0 0 1 -5 5 h-8 a5 5 0 0 1 -5 -5 z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M37 40 h22 l-1 20 h-20 z" fill="var(--accent)"/>' +
-      '<path d="M40 12 h16 v6 h-16 z" fill="var(--text)"/>',
+      '<path d="M34 20 h28 l-4 56 a6 6 0 0 1 -6 5 h-8 a6 6 0 0 1 -6 -5 z" fill="#241a12" stroke="var(--text)" stroke-width="2.5"/>' +
+      '<path d="M36 30 h24 l-3 40 q-9 3 -18 0 z" fill="#7a3b1f"/>' +
+      '<rect x="40" y="34" width="9" height="9" rx="2" fill="#e9dcc0" opacity="0.8"/>' +
+      '<rect x="49" y="46" width="8" height="8" rx="2" fill="#e9dcc0" opacity="0.7"/>' +
+      '<path d="M54 12 l6 -4 -2 64" fill="none" stroke="url(#@gold)" stroke-width="3" stroke-linecap="round"/>',
+    // Вода / узвар — пляшка
     water:
-      '<path d="M38 16 h20 v10 l4 6 v46 a4 4 0 0 1 -4 4 h-20 a4 4 0 0 1 -4 -4 v-46 l4 -6 z" fill="var(--surface-3)" stroke="var(--text)" stroke-width="3"/>' +
-      '<path d="M36 50 h24 v26 h-24 z" fill="var(--accent)" fill-opacity="0.5"/>'
+      '<path d="M40 14 h16 v9 l4 7 v42 a5 5 0 0 1 -5 5 h-14 a5 5 0 0 1 -5 -5 v-42 l4 -7 z" fill="#1b2530" stroke="var(--text)" stroke-width="2.5"/>' +
+      '<rect x="41" y="12" width="14" height="6" rx="1.5" fill="url(#@gold)"/>' +
+      '<path d="M39 44 h18 v28 a4 4 0 0 1 -4 4 h-10 a4 4 0 0 1 -4 -4 z" fill="#4a8fc7" opacity="0.55"/>' +
+      '<path d="M43 50 q5 4 10 0" stroke="#cfe6f5" stroke-width="2" fill="none" opacity="0.7"/>',
+    drink:
+      '<path d="M34 20 h28 l-4 56 a6 6 0 0 1 -6 5 h-8 a6 6 0 0 1 -6 -5 z" fill="#241a12" stroke="var(--text)" stroke-width="2.5"/>' +
+      '<path d="M36 30 h24 l-3 40 q-9 3 -18 0 z" fill="url(#@gold)" opacity="0.8"/>'
   };
-  return '<svg viewBox="0 0 96 96" width="100%" height="100%" role="img" aria-hidden="true" ' +
-    'preserveAspectRatio="xMidYMid meet">' + tile + (g[kind] || g.shawarma) + '</svg>';
+  return ('<svg viewBox="0 0 96 96" width="100%" height="100%" role="img" aria-hidden="true" ' +
+    'preserveAspectRatio="xMidYMid meet">' + defs + frame + (g[kind] || g.shawarma) + '</svg>')
+    .replace(/@/g, u);
 }
 
 /* --------- частини каркаса --------- */
@@ -4105,14 +4140,6 @@ function wireEvents() {
   });
 }
 
-/* ---- годинник статус-бару ---- */
-function tickClock() {
-  var c = document.getElementById('clock');
-  if (!c) return;
-  var d = new Date();
-  c.textContent = ('0' + d.getHours()).slice(-2) + ':' + ('0' + d.getMinutes()).slice(-2);
-}
-
 /* ---- старт ---- */
 var _booted = false;
 function boot() {
@@ -4126,8 +4153,6 @@ function boot() {
   _lastMapCity = null;
   wireEvents();
   render();
-  tickClock();
-  window.setInterval(tickClock, 15000);
   window.setTimeout(function () { _menuLoading = false; render(); }, 700);
 }
 
