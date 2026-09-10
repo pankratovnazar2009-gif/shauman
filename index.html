@@ -1169,6 +1169,358 @@
       transition-duration: 0.001ms !important;
     }
   }
+
+  /* ============================================================================
+     МЕНЮ 2.0 — редизайн головного екрана (розкладка як у фуд-аппах, айдентика лишається)
+     ============================================================================ */
+  :root { --r-lg: 14px; --r-xl: 20px;
+    --shadow-card: 0 2px 8px rgba(0,0,0,.35), 0 16px 34px -18px rgba(0,0,0,.7); }
+  :root[data-app-theme="light"] { --shadow-card: 0 2px 8px rgba(28,26,19,.06), 0 16px 34px -20px rgba(28,26,19,.18); }
+
+  /* --- шапка: іконка / лого по центру / кошик з лічильником --- */
+  .topbar {
+    display: grid;
+    grid-template-columns: 40px 1fr 40px;
+    gap: 0;
+  }
+  .topbar .brand-lockup { justify-self: center; }
+  .tb-icon {
+    width: 40px; height: 40px; display: grid; place-items: center;
+    border-radius: var(--r-pill); color: var(--muted);
+    transition: color var(--t-micro), background var(--t-micro);
+  }
+  .tb-icon svg { width: 22px; height: 22px; }
+  .tb-icon:hover { color: var(--text); background: var(--surface); }
+  .tb-icon:active { background: var(--surface-2); }
+  .tb-cart { position: relative; justify-self: end; }
+  .tb-cart .cart-badge {
+    position: absolute; top: 0; right: 0;
+    min-width: 16px; height: 16px; padding: 0 3px;
+    border-radius: var(--r-pill); background: var(--accent); color: var(--on-accent);
+    font-family: var(--font-mono); font-size: 10px; font-weight: 700;
+    display: grid; place-items: center; line-height: 1;
+    border: 2px solid var(--bg);
+  }
+
+  /* --- пошук --- */
+  .m-search { display: flex; gap: 8px; padding: 12px var(--s-4) 6px; }
+  .m-search .ms-field {
+    flex: 1; display: flex; align-items: center; gap: 8px;
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: var(--r-pill); padding: 0 14px; height: 44px;
+    transition: border-color var(--t-micro);
+  }
+  .m-search .ms-field:focus-within { border-color: var(--accent); }
+  .m-search .ms-field svg { width: 16px; height: 16px; color: var(--faint); flex: none; }
+  .m-search input {
+    flex: 1; min-width: 0; background: none; border: none; outline: none;
+    color: var(--text); font-size: 14px; font-family: var(--font-body); height: 100%;
+  }
+  .m-search input::placeholder { color: var(--faint); }
+  .m-search .ms-x {
+    color: var(--faint); flex: none; display: none;
+  }
+  .m-search .ms-field.has-val .ms-x { display: block; }
+  .m-search .ms-filter {
+    width: 44px; height: 44px; flex: none;
+    border-radius: var(--r-pill); border: 1px solid var(--border); background: var(--surface-2);
+    display: grid; place-items: center; color: var(--muted);
+  }
+  .m-search .ms-filter:hover { color: var(--text); border-color: var(--faint); }
+  .m-search .ms-filter svg { width: 18px; height: 18px; }
+
+  /* --- герой-карусель --- */
+  .hero-carousel {
+    display: flex; gap: 12px; overflow-x: auto; scroll-snap-type: x mandatory;
+    scrollbar-width: none; padding: 12px var(--s-4) 4px;
+  }
+  .hero-carousel::-webkit-scrollbar { display: none; }
+  .hero-slide {
+    scroll-snap-align: center; flex: 0 0 calc(100% - 32px);
+    position: relative; overflow: hidden;
+    border-radius: var(--r-xl); border: 1px solid var(--border);
+    background: var(--bg-elev); min-height: 170px;
+    display: flex; flex-direction: column; align-items: flex-start;
+    padding: 16px 16px 18px;
+    box-shadow: var(--shadow-card);
+  }
+  .hero-slide .hs-photo {
+    position: absolute; right: -8%; top: 50%; transform: translateY(-50%);
+    width: 64%; height: 128%; object-fit: cover; z-index: 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 42%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 42%);
+  }
+  .hero-slide::before {
+    content: ""; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background: linear-gradient(95deg, var(--bg-elev) 34%, rgba(16,14,10,.2) 62%, transparent 80%);
+  }
+  :root[data-app-theme="light"] .hero-slide::before {
+    background: linear-gradient(95deg, var(--bg-elev) 34%, rgba(255,253,247,.25) 62%, transparent 80%);
+  }
+  .hero-slide::after {
+    content: ""; position: absolute; left: 0; right: 0; top: 0; height: 5px; z-index: 2;
+    background: repeating-linear-gradient(-45deg, var(--accent) 0 9px, var(--on-accent) 9px 18px);
+    opacity: .9;
+  }
+  .hero-slide > * { position: relative; z-index: 2; }
+  .hero-slide .hs-eyebrow {
+    font-family: var(--font-display); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-ink);
+    margin-top: 4px;
+  }
+  .hero-slide .hs-title {
+    font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.0;
+    letter-spacing: 0.01em; text-transform: uppercase; color: var(--text);
+    margin-top: 6px; max-width: 64%; text-wrap: balance;
+  }
+  .hero-slide .hs-sub { font-size: 12px; color: var(--muted); margin-top: 6px; max-width: 60%; }
+  .hero-slide .hs-cta {
+    margin-top: auto; align-self: flex-start;
+    display: inline-flex; align-items: center; gap: 7px;
+    height: 38px; padding: 0 16px; border-radius: var(--r-pill);
+    background: var(--accent); color: var(--on-accent);
+    font-family: var(--font-display); font-weight: 700; font-size: 13px;
+    letter-spacing: 0.05em; text-transform: uppercase;
+  }
+  .hero-slide .hs-cta svg { width: 15px; height: 15px; }
+  .hero-slide .hs-cta:active { background: var(--accent-press); transform: scale(.97); }
+  .hero-dots { display: flex; gap: 5px; justify-content: center; padding: 8px 0 2px; }
+  .hero-dots > i {
+    width: 6px; height: 6px; border-radius: var(--r-pill); background: var(--surface-3);
+    transition: width var(--t-base) var(--e-out), background var(--t-base) var(--e-out);
+  }
+  .hero-dots > i.on { background: var(--accent); width: 18px; }
+
+  /* --- категорії-кружечки --- */
+  .cat-circles {
+    display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none;
+    padding: 14px var(--s-4) 14px;
+    position: sticky; top: 0; z-index: 4;
+    background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  .cat-circles::-webkit-scrollbar { display: none; }
+  .cat-circle {
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    flex: none; width: 58px;
+  }
+  .cat-circle .cc-ic {
+    width: 54px; height: 54px; border-radius: var(--r-pill);
+    display: grid; place-items: center;
+    background: var(--surface-2); border: 1px solid var(--border); color: var(--muted);
+    transition: background var(--t-micro), border-color var(--t-micro), color var(--t-micro), box-shadow var(--t-base);
+  }
+  .cat-circle .cc-ic svg { width: 24px; height: 24px; }
+  .cat-circle .cc-label {
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    text-align: center; white-space: nowrap; letter-spacing: 0.01em;
+  }
+  .cat-circle:hover .cc-ic { border-color: var(--faint); color: var(--text); }
+  .cat-circle[aria-pressed="true"] .cc-ic {
+    background: var(--accent); border-color: var(--accent); color: var(--on-accent);
+    box-shadow: var(--glow);
+  }
+  .cat-circle[aria-pressed="true"] .cc-label { color: var(--accent-ink); }
+
+  /* --- секція «Популярне» --- */
+  .row-head {
+    display: flex; align-items: baseline; justify-content: space-between;
+    padding: 16px var(--s-4) 8px;
+  }
+  .row-head .rh-title {
+    font-family: var(--font-display); font-weight: 700; font-size: 17px;
+    letter-spacing: 0.02em; text-transform: uppercase; color: var(--text);
+  }
+  .row-head .rh-all {
+    font-family: var(--font-display); font-size: 12px; font-weight: 700;
+    letter-spacing: 0.04em; text-transform: uppercase; color: var(--accent-ink);
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+  .row-head .rh-all svg { width: 13px; height: 13px; }
+  .pop-row {
+    display: flex; gap: 12px; overflow-x: auto; scrollbar-width: none;
+    padding: 0 var(--s-4) 6px;
+  }
+  .pop-row::-webkit-scrollbar { display: none; }
+  .pop-card {
+    flex: 0 0 162px; position: relative; text-align: left;
+    border: 1px solid var(--border); border-radius: var(--r-lg);
+    background: var(--surface); overflow: hidden;
+    transition: border-color var(--t-micro), transform var(--t-micro);
+  }
+  .pop-card:hover { border-color: var(--faint); }
+  .pop-card:active { transform: scale(.985); }
+  .pop-card .pc-photo {
+    width: 100%; aspect-ratio: 5 / 4; object-fit: cover; display: block;
+    background: var(--surface-2);
+  }
+  .pop-card .pc-photo svg { width: 100%; height: 100%; }
+  .pop-card .pc-badge {
+    position: absolute; left: 8px; top: 8px;
+    font-family: var(--font-display); font-size: 9px; font-weight: 700;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    padding: 3px 6px; border-radius: var(--r-xs);
+    background: var(--accent); color: var(--on-accent);
+  }
+  .pop-card .pc-badge.alt { background: var(--text); color: var(--bg); }
+  .pop-card .pc-body { padding: 10px; }
+  .pop-card .pc-name {
+    font-weight: 700; font-size: 13px; line-height: 1.2; color: var(--text);
+    display: -webkit-box; -webkit-line-clamp: 1; -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .pop-card .pc-rating {
+    display: flex; align-items: center; gap: 4px; margin-top: 5px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+  }
+  .pop-card .pc-rating svg { width: 12px; height: 12px; color: var(--accent); flex: none; }
+  .pop-card .pc-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .pop-card .pc-price { font-family: var(--font-mono); font-weight: 700; font-size: 13px; color: var(--text); }
+  .pop-card .pc-add {
+    width: 30px; height: 30px; flex: none; display: grid; place-items: center;
+    background: var(--accent); color: var(--on-accent); border-radius: var(--r-sm);
+    transition: transform var(--t-micro);
+  }
+  .pop-card .pc-add svg { width: 15px; height: 15px; }
+  .pop-card .pc-add:active { transform: scale(.88); }
+
+  /* --- промо-банер --- */
+  .promo-banner {
+    position: relative; overflow: hidden;
+    width: 100%; margin: 18px 0 10px; padding: 18px var(--s-4);
+    border: 0; border-radius: 0;
+    background: linear-gradient(105deg, var(--bg-elev), var(--surface-2));
+    display: flex; align-items: center; gap: 14px; min-height: 96px; text-align: left;
+  }
+  .promo-banner::before, .promo-banner::after {
+    content: ""; position: absolute; left: 0; right: 0; height: 5px;
+    background: repeating-linear-gradient(-45deg, var(--accent) 0 9px, var(--on-accent) 9px 18px);
+    opacity: .9;
+  }
+  .promo-banner::before { top: 0; }
+  .promo-banner::after { bottom: 0; }
+  .promo-banner .pb-txt { flex: 1; min-width: 0; }
+  .promo-banner .pb-k {
+    display: block;
+    font-family: var(--font-display); font-weight: 700; font-size: 20px; line-height: 1.04;
+    letter-spacing: 0.01em; text-transform: uppercase; color: var(--accent-ink);
+  }
+  .promo-banner .pb-sub { display: block; font-size: 12px; color: var(--muted); margin-top: 6px; }
+  .promo-banner .pb-badge {
+    width: 56px; height: 56px; flex: none; border-radius: var(--r-pill);
+    background: var(--accent); color: var(--on-accent);
+    display: grid; place-items: center; text-align: center; line-height: .95;
+    font-family: var(--font-display); font-weight: 800; font-size: 13px;
+  }
+
+  /* --- список категорії: карткою --- */
+  .menu-list { display: flex; flex-direction: column; gap: 10px; padding: 14px var(--s-4) 8px; }
+  .menu-list .row-head { padding: 2px 0 6px; }
+  .menu-item {
+    grid-template-columns: 84px 1fr auto;
+    align-items: center;
+    padding: 10px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg);
+    background: var(--surface);
+  }
+  .menu-item:hover { background: var(--surface-2); border-color: var(--faint); }
+  .menu-item:active { background: var(--surface-2); transform: scale(.995); }
+  .menu-thumb { width: 84px; height: 84px; border-radius: var(--r-md); }
+  .menu-item .mi-name { font-size: 14px; }
+  .menu-item .mi-rating {
+    display: flex; align-items: center; gap: 4px; margin-top: 4px;
+    font-family: var(--font-mono); font-size: 11px; color: var(--muted);
+  }
+  .menu-item .mi-rating svg { width: 12px; height: 12px; color: var(--accent); flex: none; }
+  .menu-item .mi-desc { -webkit-line-clamp: 1; margin-top: 4px; }
+  .menu-item .mi-tags { margin-top: 6px; }
+  .mi-add { border-radius: var(--r-sm); }
+
+  /* --- порожній пошук --- */
+  .m-empty {
+    padding: 40px var(--s-5); text-align: center; color: var(--muted); font-size: 13px;
+  }
+
+  /* ============================================================================
+     РЕДИЗАЙН 2.0 — решта екранів під нову мову (картки, скруглення). Лише CSS.
+     ============================================================================ */
+
+  /* кнопки — трохи м’якші кути */
+  .btn { border-radius: var(--r-md); }
+
+  /* поля вводу / радіо — м’якші */
+  .field input, .field select { min-height: 48px; border-radius: var(--r-md); }
+  .radio-opt { border-radius: var(--r-lg); padding: 12px 14px; }
+  .helper-note { border-radius: var(--r-md); border-left-width: 3px; margin: 0 var(--s-4) var(--s-4); }
+  .m-search .ms-field, .m-search .ms-filter { height: 46px; }
+
+  /* КОШИК: рядок → картка */
+  .line-item {
+    grid-template-columns: 66px 1fr auto;
+    align-items: center;
+    margin: 0 var(--s-4) 10px;
+    padding: 10px;
+    border: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    border-radius: var(--r-lg); background: var(--surface);
+  }
+  .line-item .li-thumb { width: 66px; height: 66px; border-radius: var(--r-md); }
+  .line-item .li-name { font-size: 14px; }
+
+  /* підсумок → картка */
+  .summary {
+    margin: 6px var(--s-4) 12px; padding: 14px 16px;
+    border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface);
+  }
+  .summary-row.total { font-family: var(--font-display); letter-spacing: 0.01em; }
+
+  /* ЧЕКИ (гаманець) — м’якші */
+  .receipt { border-radius: var(--r-lg); padding: 14px 16px; }
+
+  /* НАГОРОДИ */
+  .reward-card { border-radius: var(--r-lg); padding: 12px; }
+  .reward-card .rc-ic { border-radius: var(--r-md); }
+  .coupon-row { border-radius: var(--r-md); }
+
+  /* ШАУМАНЧІКИ — комірки м’якші */
+  .cobra-cell { border-radius: var(--r-lg); }
+
+  /* КАРТКА лояльності / QR — м’якші */
+  .loyalty-card { border-radius: var(--r-xl); }
+  .code-card { border-radius: var(--r-xl); }
+
+  /* МАПА: рядок точки → картка у списку */
+  .loc-card {
+    box-sizing: border-box;
+    width: calc(100% - var(--s-6)); /* база має width:100% — інакше з полями тече за екран */
+    margin: 0 var(--s-4) 10px;
+    padding: 12px 14px;
+    border: 1px solid var(--border); border-bottom: 1px solid var(--border);
+    border-left: 2px solid transparent;
+    border-radius: var(--r-lg); background: var(--surface);
+  }
+  .loc-card.is-focused { border-left-color: var(--accent); }
+  .sat-wrap, .poland-wrap { border-radius: var(--r-xl); }
+  .city-seg { border-radius: var(--r-md); }
+  .city-seg button { border-radius: var(--r-sm); }
+
+  /* ПРОФІЛЬ / шторки: рядок-посилання → картка */
+  .link-row {
+    /* inline style ставить width:100%; на <button> auto = shrink-to-fit,
+       тож задаємо ширину явно з урахуванням бічних полів */
+    box-sizing: border-box;
+    width: calc(100% - var(--s-6)) !important;
+    margin: 0 var(--s-4) 8px;
+    padding: 13px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-lg); background: var(--surface);
+  }
+  .link-row:hover { background: var(--surface-2); border-color: var(--faint); }
+  .link-row .lr-text { font-size: 14px; }
+  /* у шторках трохи щільніше — на всю ширину тіла шторки */
+  .sheet-body .link-row { width: 100% !important; margin: 0 0 8px; }
+  .sheet-body .link-row:first-of-type { margin-top: 0; }
+
+  /* заголовки секцій — під нову типографіку */
+  .section-label { font-size: 12px; letter-spacing: 0.16em; color: var(--muted); padding: 20px var(--s-4) 10px; }
 </style>
 <meta charset="utf-8" />
 <meta name="description" content="Демо застосунку лояльності мережі шаурми SHAUMAN." />
@@ -1244,7 +1596,9 @@ var ICON = {
   edit: '<path d="M4 20h4L19 9a2 2 0 0 0-3-3L5 17v3Z"/>',
   chevRight: '<path d="M9 6l6 6-6 6"/>',
   collection: '<rect x="3.5" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="3.5" width="7.5" height="7.5" rx="1.6"/><rect x="3.5" y="13" width="7.5" height="7.5" rx="1.6"/><rect x="13" y="13" width="7.5" height="7.5" rx="1.6"/>',
-  receipt: '<path d="M6 3h12v16l-3-1.8-3 1.8-3-1.8-3 1.8z"/><path d="M9 8h6M9 12h5"/>'
+  receipt: '<path d="M6 3h12v16l-3-1.8-3 1.8-3-1.8-3 1.8z"/><path d="M9 8h6M9 12h5"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>',
+  filter: '<path d="M4 6h16M7 12h10M10 18h4"/>'
 };
 
 /** Міста присутності мережі */
@@ -1598,6 +1952,7 @@ function defaultState() {
     usedPromos: [],
     walletTab: 'cobras',
     menuCat: 'pop',
+    menuQuery: '',
     settings: { reduceMotion: false, theme: 'dark', lang: 'ua' },
     // транзієнтне (не читається як «істина» після relaunch, лише поточна сесія):
     checkout: { status: 'idle' },
@@ -1851,7 +2206,13 @@ var actions = {
     render();
   },
 
-  setMenuCat: function (d) { setState({ menuCat: d.cat }); },
+  setMenuCat: function (d) { state.menuQuery = ''; setState({ menuCat: d.cat }); },
+  clearMenuSearch: function () {
+    state.menuQuery = '';
+    render();
+    var el = document.getElementById('menuSearch');
+    if (el) el.focus({ preventScroll: true });
+  },
   setWalletTab: function (d) { setState({ walletTab: d.tab }); },
 
   /** Вибір міста — діє і на екрані «Мапа», і як місто акаунта */
@@ -2270,7 +2631,7 @@ function brandMark(cls) {
 }
 
 /** Фото страв (вбудовані data-URI). Ключ — id позиції. Проставляється при збірці. */
-var FOOD_IMG = {"sh_klas":"./img/food-sh_klas.jpg","sh_xl":"./img/food-sh_xl.jpg","sh_firm":"./img/food-sh_firm.jpg","sh_am":"./img/food-sh_am.jpg","sh_haw":"./img/food-sh_haw.jpg","sh_gr":"./img/food-sh_gr.jpg","sh_od":"./img/food-sh_od.jpg","sh_4s":"./img/food-sh_4s.jpg","sh_max":"./img/food-sh_firm.jpg"};
+var FOOD_IMG = {"sh_klas":"./img/food-sh_klas.jpg","sh_xl":"./img/food-sh_xl.jpg","sh_firm":"./img/food-sh_firm.jpg","sh_max":"./img/food-sh_firm.jpg","sh_am":"./img/food-sh_am.jpg","sh_haw":"./img/food-sh_haw.jpg","sh_gr":"./img/food-sh_gr.jpg","sh_od":"./img/food-sh_od.jpg","sh_4s":"./img/food-sh_4s.jpg"};
 
 /** Візуал позиції: справжнє фото, якщо є; інакше — фірмова SVG-ілюстрація. */
 function itemArt(item, big) {
@@ -2377,11 +2738,20 @@ function cobraArt(cobra) {
 /* --------- частини каркаса --------- */
 
 function topBarHTML() {
+  var n = cartCount();
   return '' +
     '<div class="topbar">' +
+      '<button class="tb-icon" data-action="nav" data-to="profile" aria-label="Профіль і меню">' +
+        icon('menu', 22) +
+      '</button>' +
       '<button class="brand-lockup" data-action="nav" data-to="menu" aria-label="SHAUMAN — на головну">' +
         logoImg('brand-logo', 'SHAUMAN') +
         '<span class="brand-word">Shauman</span>' +
+      '</button>' +
+      '<button class="tb-icon tb-cart" data-action="nav" data-to="cart" ' +
+        'aria-label="Кошик' + (n ? ': ' + n + ' ' + plural(n, ['позиція', 'позиції', 'позицій']) : ' порожній') + '">' +
+        icon('cart', 22) +
+        (n ? '<span class="cart-badge mono" aria-hidden="true">' + (n > 9 ? '9+' : n) + '</span>' : '') +
       '</button>' +
     '</div>';
 }
@@ -2452,12 +2822,135 @@ var _menuLoading = true; // короткий скелетон при першо�
 
 var screens = {};
 
-/* ----------------------------- МЕНЮ ----------------------------- */
+/* ----------------------------- МЕНЮ 2.0 ----------------------------- */
+
+var CAT_ICON = {
+  pop:      '<path d="M12 3c1.6 3 4 4 4 7a4 4 0 0 1-8 0c0-1.6.7-2.7 1.4-3.6C10 8 10.6 9.5 11.6 10 11 7.2 11.4 4.8 12 3Z"/>',
+  shawarma: '<path d="M9 3h6l1.6 15L12 21l-4.6-3L9 3Z"/><path d="M9 8h6M8.6 12h6.8M9.4 16h5.2"/>',
+  shauchak: '<path d="M4 11a8 8 0 0 1 16 0Z"/><path d="M3.5 11h17M4 15h16"/><path d="M6.5 15c0 2 1.5 3.5 3.5 3.5h4c2 0 3.5-1.5 3.5-3.5"/>',
+  hotdog:   '<rect x="3" y="9" width="18" height="6" rx="3"/><path d="M6.5 12c2-1.2 3 1 5 0s3 1.2 5 0 1.5 1 1.5 1"/>',
+  suluguni: '<path d="M4 8 12 4l8 4-8 4-8-4Z"/><path d="M4 8v6l8 4 8-4V8"/><path d="M9 10.5h.01M13 12h.01"/>',
+  frytura:  '<path d="M6.5 9h11l-1.2 11H7.7L6.5 9Z"/><path d="M9 3v6M12 2v7M15 4v5"/>',
+  vege:     '<path d="M12 20c-4 0-7-3-7-7 4 0 7 3 7 7Z"/><path d="M12 20c0-6.5 3.4-11.5 9.5-13.5C20.4 14.5 17 20 12 20Z"/>',
+  kids:     '<circle cx="12" cy="12" r="9"/><path d="M8.5 14a4 4 0 0 0 7 0"/><path d="M9 9.5h.01M15 9.5h.01"/>',
+  sauce:    '<path d="M10 3h4v3l2 3v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2V9l2-3V3Z"/><path d="M9 12.5h6"/>',
+  drinks:   '<path d="M6 8h12l-1.4 12a2 2 0 0 1-2 1.8H9.4a2 2 0 0 1-2-1.8L6 8Z"/><path d="M9 4.5h6M7.6 8h8.8"/>'
+};
+function catIcon(id) {
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" ' +
+    'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (CAT_ICON[id] || CAT_ICON.pop) + '</svg>';
+}
+
+/** Стабільний псевдо-рейтинг за id (демо-контент, не функціонал) */
+function ratingFor(id) {
+  var h = 0;
+  for (var i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return { r: ((45 + (h % 5)) / 10).toFixed(1), c: 170 + (h % 1730) };
+}
+function fmtCount(c) {
+  return c >= 1000 ? (Math.round(c / 100) / 10).toString().replace(/\.0$/, '') + ' тис.' : c + '+';
+}
+
+var HERO_SLIDES = [
+  { item: 'sh_klas', eyebrow: 'Смак Одеси',   title: 'Шаурма,<br>як удома',   sub: 'Соус із Привозу, свіжий лаваш, багато м’яса.' },
+  { item: 'sh_max',  eyebrow: '1300 грамів',  title: 'Фірмова MAX',           sub: 'Виклик для справжніх. З’їв — ти легенда точки.' },
+  { item: 'sh_od',   eyebrow: 'Хіт тижня',    title: 'Одеська<br>з фрі',      sub: 'Фрі та квашений огірок усередині лаваша.' }
+];
+
+function heroCarousel() {
+  return '<div class="hero-carousel" id="heroCarousel">' +
+    HERO_SLIDES.map(function (s) {
+      var photo = FOOD_IMG[s.item]
+        ? '<img class="hs-photo" src="' + FOOD_IMG[s.item] + '" alt="" aria-hidden="true" decoding="async" />' : '';
+      return '<article class="hero-slide">' +
+        photo +
+        '<span class="hs-eyebrow">' + esc(s.eyebrow) + '</span>' +
+        '<h2 class="hs-title">' + s.title + '</h2>' +
+        '<p class="hs-sub">' + esc(s.sub) + '</p>' +
+        '<button class="hs-cta" data-action="openItem" data-id="' + s.item + '">Замовити ' + icon('right', 15) + '</button>' +
+      '</article>';
+    }).join('') +
+  '</div>' +
+  '<div class="hero-dots" id="heroDots" aria-hidden="true">' +
+    HERO_SLIDES.map(function (_, i) { return '<i class="' + (i === 0 ? 'on' : '') + '"></i>'; }).join('') +
+  '</div>';
+}
+
+function catCircles() {
+  return '<div class="cat-circles" role="tablist" aria-label="Категорії меню">' +
+    CATS.map(function (c) {
+      var on = state.menuCat === c.id;
+      return '<button class="cat-circle" role="tab" data-action="setMenuCat" data-cat="' + c.id + '" ' +
+        'aria-pressed="' + on + '" aria-selected="' + on + '">' +
+        '<span class="cc-ic">' + catIcon(c.id) + '</span>' +
+        '<span class="cc-label">' + esc(c.name) + '</span>' +
+      '</button>';
+    }).join('') + '</div>';
+}
+
+var POP_BADGE = { sh_klas: 'Бестселер', sh_firm: 'Вибір шефа', sh_max: '1300 г', hd_klas: 'Популярне', ch_klas: 'Хіт', su_klas: 'Vege' };
+
+function popularRow() {
+  var pops = ITEMS.filter(function (i) { return i.tags.indexOf('hit') !== -1; }).slice(0, 8);
+  return '<div class="row-head">' +
+      '<span class="rh-title">Популярне</span>' +
+      '<button class="rh-all" data-action="setMenuCat" data-cat="pop">Дивитись усі ' + icon('right', 13) + '</button>' +
+    '</div>' +
+    '<div class="pop-row">' + pops.map(function (it, idx) {
+      var b = POP_BADGE[it.id];
+      var g = ratingFor(it.id);
+      return '<article class="pop-card">' +
+        '<button class="pc-photo" data-action="openItem" data-id="' + it.id + '" aria-label="Детальніше: ' + esc(it.name) + '">' + itemArt(it) + '</button>' +
+        (b ? '<span class="pc-badge' + (idx % 2 ? ' alt' : '') + '">' + esc(b) + '</span>' : '') +
+        '<div class="pc-body">' +
+          '<div class="pc-name">' + esc(it.name) + '</div>' +
+          '<div class="pc-rating">' + icon('star', 12) + g.r + ' <span style="opacity:.65">(' + fmtCount(g.c) + ')</span></div>' +
+          '<div class="pc-foot">' +
+            '<span class="pc-price">' + zl(it.price) + '</span>' +
+            '<button class="pc-add" data-action="quickAdd" data-id="' + it.id + '" aria-label="Додати ' + esc(it.name) + '">' + icon('plus', 15) + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</article>';
+    }).join('') + '</div>';
+}
+
+function promoBanner() {
+  return '<button class="promo-banner" data-action="openPromo" aria-label="Промокоди та акції">' +
+    '<span class="pb-txt">' +
+      '<span class="pb-k">−20% на комбо</span>' +
+      '<span class="pb-sub">Вихідні · застосуй промокод у профілі</span>' +
+    '</span>' +
+    '<span class="pb-badge">−20%</span>' +
+  '</button>';
+}
+
+function menuItemHTML(it) {
+  var line = lineFor(it.id);
+  var g = ratingFor(it.id);
+  var right = line
+    ? '<span class="mi-qty"><button data-action="quickDec" data-id="' + it.id + '" aria-label="Менше: ' + esc(it.name) + '">' + icon('minus', 16) + '</button>' +
+      '<span aria-live="polite">' + line.qty + '</span>' +
+      '<button data-action="quickInc" data-id="' + it.id + '" aria-label="Більше: ' + esc(it.name) + '">' + icon('plus', 16) + '</button></span>'
+    : '<button class="mi-add" data-action="quickAdd" data-id="' + it.id + '" aria-label="Додати ' + esc(it.name) + '">' + icon('plus', 16) + '</button>';
+  return '<li class="menu-item">' +
+    '<button class="menu-thumb" data-action="openItem" data-id="' + it.id + '" aria-label="Детальніше: ' + esc(it.name) + '">' + itemArt(it) + '</button>' +
+    '<button style="text-align:left;background:none" data-action="openItem" data-id="' + it.id + '">' +
+      '<span class="mi-name">' + esc(it.name) + '</span>' +
+      '<span class="mi-rating">' + icon('star', 12) + g.r + ' <span style="opacity:.65">· ' + fmtCount(g.c) + '</span></span>' +
+      '<span class="mi-desc">' + esc(it.desc) + '</span>' +
+      (it.tags.length ? '<span class="mi-tags">' + it.tags.map(tagHTML).join('') + '</span>' : '') +
+    '</button>' +
+    '<span class="mi-right"><span class="mi-price mono">' + zl(it.price) + '</span>' + right + '</span>' +
+  '</li>';
+}
+
 screens.menu = function () {
   var loc = locById(state.profile.favLoc) ||
     locsByCity(state.profile.city || 'poznan')[0] || LOCATIONS[0];
   var st = locStatus(loc, new Date());
   var cityName = cityById(loc.city).name;
+  var q = (state.menuQuery || '').trim().toLowerCase();
+
   var strip = '<button class="pickup-strip" data-action="nav" data-to="map" ' +
     'aria-label="Самовивіз: ' + esc(loc.addr) + ', ' + esc(cityName) + ', ' + esc(st.text) + '. Змінити точку">' +
     icon('map', 14) +
@@ -2467,48 +2960,63 @@ screens.menu = function () {
     '<span class="ps-arrow">' + icon('right', 14) + '</span>' +
   '</button>';
 
-  var cats = '<div class="cat-scroll" role="tablist" aria-label="Категорії меню">' +
-    CATS.map(function (c) {
-      return '<button class="chip" role="tab" data-action="setMenuCat" data-cat="' + c.id + '" ' +
-        'aria-pressed="' + (state.menuCat === c.id) + '" aria-selected="' + (state.menuCat === c.id) + '">' +
-        esc(c.name) + '</button>';
-    }).join('') + '</div>';
+  var search = '<div class="m-search">' +
+    '<span class="ms-field' + (q ? ' has-val' : '') + '">' +
+      icon('search', 16) +
+      '<input id="menuSearch" type="text" autocomplete="off" spellcheck="false" ' +
+        'placeholder="Пошук страв…" value="' + esc(state.menuQuery || '') + '" aria-label="Пошук страв" />' +
+      '<button class="ms-x" data-action="clearMenuSearch" aria-label="Очистити пошук" tabindex="-1">' + icon('close', 14) + '</button>' +
+    '</span>' +
+    '<button class="ms-filter" data-action="noop" aria-label="Фільтри">' + icon('filter', 18) + '</button>' +
+  '</div>';
 
+  // --- режим пошуку ---
+  if (q) {
+    var found = ITEMS.filter(function (it) {
+      var cn = ((CATS.find(function (c) { return c.id === it.cat; }) || {}).name || '').toLowerCase();
+      return it.name.toLowerCase().indexOf(q) !== -1 ||
+        (it.desc && it.desc.toLowerCase().indexOf(q) !== -1) ||
+        cn.indexOf(q) !== -1;
+    });
+    var body = found.length
+      ? '<div class="row-head"><span class="rh-title">Знайдено · ' + found.length + '</span></div>' +
+        '<ul class="menu-list" style="padding-top:0">' + found.map(menuItemHTML).join('') + '</ul>'
+      : '<p class="m-empty">Нічого не знайшли за «' + esc(state.menuQuery) + '».<br>Спробуй іншу назву.</p>';
+    return strip + search + body;
+  }
+
+  // --- скелетон першого входу ---
   if (_menuLoading) {
     var sk = '';
-    for (var i = 0; i < 6; i++) {
-      sk += '<div class="skel-row"><div class="skel" style="width:76px;height:76px"></div>' +
+    for (var i = 0; i < 5; i++) {
+      sk += '<div class="menu-item" style="border:1px solid var(--border)"><div class="skel" style="width:84px;height:84px;border-radius:var(--r-md)"></div>' +
         '<div style="display:flex;flex-direction:column;gap:8px;padding-top:6px">' +
-        '<div class="skel" style="width:60%;height:14px"></div>' +
-        '<div class="skel" style="width:90%;height:11px"></div>' +
-        '<div class="skel" style="width:30%;height:11px"></div></div></div>';
+        '<div class="skel" style="width:55%;height:14px"></div>' +
+        '<div class="skel" style="width:35%;height:11px"></div>' +
+        '<div class="skel" style="width:85%;height:11px"></div></div>' +
+        '<div class="skel" style="width:44px;height:20px"></div></div>';
     }
-    return strip + cats + sk;
+    return strip + search + heroCarousel() + catCircles() + '<ul class="menu-list">' + sk + '</ul>';
   }
 
+  var isPop = state.menuCat === 'pop';
   var items = menuItemsFor(state.menuCat);
-  if (!items.length) {
-    return strip + cats + stateBox(brandMark(), 'Тут поки порожньо', 'У цій категорії ще немає позицій. Загляньте до «Популярне».',
-      '<button class="btn btn-ghost" data-action="setMenuCat" data-cat="pop">До популярного</button>');
-  }
+  var catName = (CATS.find(function (c) { return c.id === state.menuCat; }) || CATS[0]).name;
 
-  return strip + cats + '<ul class="menu-list">' + items.map(function (it) {
-    var line = lineFor(it.id);
-    var right = line
-      ? '<span class="mi-qty"><button data-action="quickDec" data-id="' + it.id + '" aria-label="Менше: ' + esc(it.name) + '">' + icon('minus', 16) + '</button>' +
-        '<span aria-live="polite">' + line.qty + '</span>' +
-        '<button data-action="quickInc" data-id="' + it.id + '" aria-label="Більше: ' + esc(it.name) + '">' + icon('plus', 16) + '</button></span>'
-      : '<button class="mi-add" data-action="quickAdd" data-id="' + it.id + '" aria-label="Додати ' + esc(it.name) + '">' + icon('plus', 16) + '</button>';
-    return '<li class="menu-item">' +
-      '<button class="menu-thumb" data-action="openItem" data-id="' + it.id + '" aria-label="Детальніше: ' + esc(it.name) + '">' + itemArt(it) + '</button>' +
-      '<button style="text-align:left;background:none" data-action="openItem" data-id="' + it.id + '">' +
-        '<span class="mi-name">' + esc(it.name) + '</span>' +
-        '<span class="mi-desc">' + esc(it.desc) + '</span>' +
-        (it.tags.length ? '<span class="mi-tags">' + it.tags.map(tagHTML).join('') + '</span>' : '') +
-      '</button>' +
-      '<span class="mi-right"><span class="mi-price mono">' + zl(it.price) + '</span>' + right + '</span>' +
-    '</li>';
-  }).join('') + '</ul>';
+  var list = items.length
+    ? '<ul class="menu-list">' +
+        '<li class="row-head"><span class="rh-title">' + esc(catName) + ' · ' + items.length + '</span></li>' +
+        items.map(menuItemHTML).join('') +
+      '</ul>'
+    : stateBox(brandMark(), 'Тут поки порожньо', 'У цій категорії ще немає позицій.',
+        '<button class="btn btn-ghost" data-action="setMenuCat" data-cat="pop">До популярного</button>');
+
+  return strip + search +
+    heroCarousel() +
+    catCircles() +
+    (isPop ? '' : popularRow()) +
+    promoBanner() +
+    list;
 };
 
 /* ----------------------------- МАПА ----------------------------- */
@@ -3411,6 +3919,22 @@ var _lastWalletTab = null;
 var _lastMapCity = null;
 var _overlayReturn = null;
 var _overlayJustOpened = false;
+var _menuSearchT = 0;
+
+/** Оновлення крапок герой-каруселі за прокруткою (перечіпляємо на кожному рендері) */
+function wireHeroDots() {
+  var hc = document.getElementById('heroCarousel');
+  var dots = document.getElementById('heroDots');
+  if (!hc || !dots) return;
+  var upd = function () {
+    var first = hc.firstElementChild;
+    var step = first ? first.offsetWidth + 12 : hc.clientWidth;
+    var i = step > 0 ? Math.round(hc.scrollLeft / step) : 0;
+    i = Math.max(0, Math.min(dots.children.length - 1, i));
+    for (var k = 0; k < dots.children.length; k++) dots.children[k].classList.toggle('on', k === i);
+  };
+  hc.addEventListener('scroll', upd, { passive: true });
+}
 
 function screenLabel() {
   return ({
@@ -3450,6 +3974,8 @@ function renderShell() {
 
   var scr = document.getElementById('screen');
   if (scr) scr.scrollTop = resetScroll ? 0 : prevScroll;
+
+  if (state.nav === 'menu') wireHeroDots();
 
   shell.setAttribute('aria-hidden', (_overlay || !state.onboarded) ? 'true' : 'false');
 
@@ -3643,6 +4169,22 @@ function wireEvents() {
 
   root.addEventListener('input', function (e) {
     var t = e.target;
+    if (t.id === 'menuSearch') {
+      var v = t.value;
+      var fld = t.closest('.ms-field');
+      if (fld) fld.classList.toggle('has-val', !!v.trim());
+      clearTimeout(_menuSearchT);
+      _menuSearchT = window.setTimeout(function () {
+        if (state.menuQuery === v) return;
+        state.menuQuery = v;
+        render();
+        var el = document.getElementById('menuSearch');
+        if (el) {
+          el.focus({ preventScroll: true });
+          try { el.setSelectionRange(el.value.length, el.value.length); } catch (err) {}
+        }
+      }, 200);
+    }
     if (t.id === 'promoInput' && state.checkoutDraft) state.checkoutDraft.promoInput = t.value;
     if (t.id === 'onbName') _onbDraft.name = t.value;
     if (t.id === 'nameInput') {
