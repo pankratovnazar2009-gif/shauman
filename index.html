@@ -723,8 +723,8 @@
   .reward-card:hover { border-color: var(--faint); }
   .reward-card .rc-ic { width: 44px; height: 44px; display: grid; place-items: center; background: var(--surface-2); border-radius: var(--r-sm); color: var(--accent-ink); }
   .reward-card .rc-ic svg { width: 22px; height: 22px; }
-  .reward-card .rc-name { font-weight: 700; font-size: 13px; }
-  .reward-card .rc-cost { font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 2px; }
+  .reward-card .rc-name { display: block; font-weight: 700; font-size: 13px; }
+  .reward-card .rc-cost { display: block; font-family: var(--font-mono); font-size: 12px; color: var(--muted); margin-top: 3px; }
   .reward-card .rc-cta { font-family: var(--font-mono); font-weight: 600; font-size: 12px; color: var(--accent-ink); }
   .reward-card[aria-disabled="true"] { opacity: 0.5; }
   .reward-card[aria-disabled="true"] .rc-cta { color: var(--faint); }
@@ -1028,20 +1028,36 @@
   .sheet-hero svg { height: 110px; width: auto; }
   .sheet-hero .food-photo { height: 100%; }
 
+  /* кастомізація позиції (соус / добавки) — стиль «як у великих застосунків» */
+  .cz-block { margin-top: 16px; }
+  .cz-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 10px; }
+  .cz-title { font-family: var(--font-display); font-size: 15px; font-weight: 600; letter-spacing: 0.01em; }
+  .cz-note { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+  .sauce-wrap { display: flex; flex-wrap: wrap; gap: 8px; }
+  .sauce-chip {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-size: 12.5px; font-weight: 600; color: var(--text);
+    padding: 8px 12px; border: 1px solid var(--border); border-radius: var(--r-pill);
+    background: var(--surface); transition: border-color var(--t-micro), background var(--t-micro);
+  }
+  .sauce-chip svg { width: 12px; height: 12px; }
+  .sauce-chip:hover { border-color: var(--faint); }
+  .sauce-chip[data-on="1"] { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+  .addon-list { display: grid; gap: 8px; }
   .addon-opt {
     display: flex; align-items: center; gap: var(--s-3);
-    padding: var(--s-3); border: 1px solid var(--border); border-radius: var(--r-sm);
-    margin-bottom: var(--s-2); transition: border-color var(--t-micro);
+    padding: 11px var(--s-3); border: 1px solid var(--border); border-radius: var(--r-md);
+    background: var(--surface); transition: border-color var(--t-micro), background var(--t-micro);
   }
   .addon-opt:hover { border-color: var(--faint); }
-  .addon-opt[data-checked="true"] { border-color: var(--accent-ink); }
+  .addon-opt[data-checked="true"] { border-color: var(--accent-ink); background: rgba(246, 206, 5, 0.06); }
   .addon-opt .ao-box {
-    width: 20px; height: 20px; border: 2px solid var(--border); border-radius: var(--r-xs); flex: none;
-    display: grid; place-items: center; color: var(--on-accent);
+    width: 22px; height: 22px; border: 2px solid var(--border); border-radius: var(--r-sm); flex: none;
+    display: grid; place-items: center; color: var(--faint);
   }
-  .addon-opt[data-checked="true"] .ao-box { background: var(--accent); border-color: var(--accent-ink); }
+  .addon-opt[data-checked="true"] .ao-box { background: var(--accent); border-color: var(--accent-ink); color: var(--on-accent); }
   .addon-opt .ao-box svg { width: 12px; height: 12px; }
-  .addon-opt .ao-name { font-size: 13px; flex: 1; }
+  .addon-opt .ao-name { font-size: 13.5px; flex: 1; }
   .addon-opt .ao-price { font-family: var(--font-mono); font-size: 12px; color: var(--muted); }
 
   .qty-stepper {
@@ -1706,17 +1722,29 @@ var CATS = [
   { id: 'frytura', name: 'Фрітура' },
   { id: 'vege', name: 'Vege' },
   { id: 'kids', name: 'Дитячі' },
-  { id: 'sauce', name: 'Соуси' },
   { id: 'drinks', name: 'Напої' }
 ];
 
-var ADDON_CATS = ['shawarma', 'shauchak', 'hotdog', 'suluguni', 'vege'];
+/** Категорії, де показуємо кастомізацію (соус + добавки) у шторці позиції */
+var ADDON_CATS = ['shawarma', 'shauchak', 'hotdog', 'suluguni', 'vege', 'kids'];
 
-/** Добавки (id, назва, ціна zł) */
+/** Соуси — вибір у шторці позиції. Безкоштовні (скільки завгодно). */
+var SAUCES = [
+  { id: 's_garlic', name: 'Фірмовий часниковий' },
+  { id: 's_hot', name: 'Фірмовий гострий', spicy: true },
+  { id: 's_cheese', name: 'Сирний' },
+  { id: 's_bbq', name: 'BBQ' },
+  { id: 's_srir', name: 'Sriracha', spicy: true },
+  { id: 's_ketchup', name: 'Кетчуп' },
+  { id: 's_mayo', name: 'Майонез' },
+  { id: 's_mustard', name: 'Гірчиця' }
+];
+
+/** Добавки (id, назва, ціна zł) — платна кастомізація у шторці позиції */
 var ADDONS = [
+  { id: 'a_meat', name: 'Подвійне м’ясо', price: 7 },
   { id: 'a_cheese', name: 'Сир', price: 3 },
   { id: 'a_fri', name: 'Фрі всередину', price: 5 },
-  { id: 'a_meat', name: 'Додаткове м’ясо', price: 7 },
   { id: 'a_gouda', name: 'Сир гауда', price: 4 },
   { id: 'a_ched', name: 'Сир чеддер', price: 4 },
   { id: 'a_sul', name: 'Сулугуні', price: 4 },
@@ -1785,15 +1813,6 @@ var ITEMS = [
   // Дитячі
   { id: 'kd_set', cat: 'kids', art: 'kids', name: 'Kids сет', price: 22, tags: [], desc: 'Нагетси або м’ясо + фрі + сік.' },
   { id: 'kd_plate', cat: 'kids', art: 'kids', name: 'Шаурма на тарілці', price: 28, tags: [], desc: 'М’ясо 200 г, фрі, овочі, соус. Без лаваша.' },
-  // Соуси
-  { id: 'sc_firm', cat: 'sauce', art: 'sauce', name: 'Фірмовий часниковий', price: 3, tags: [], desc: 'Той самий, за яким повертаються.' },
-  { id: 'sc_hot', cat: 'sauce', art: 'sauce', name: 'Фірмовий гострий', price: 3, tags: ['spicy'], desc: 'Для тих, хто любить із перчинкою.' },
-  { id: 'sc_cheese', cat: 'sauce', art: 'sauce', name: 'Сирний', price: 3, tags: [], desc: 'Ніжний, тягучий.' },
-  { id: 'sc_bbq', cat: 'sauce', art: 'sauce', name: 'BBQ', price: 3, tags: [], desc: 'Димний, солодкувато-пряний.' },
-  { id: 'sc_srir', cat: 'sauce', art: 'sauce', name: 'Sriracha', price: 3, tags: ['spicy'], desc: 'Гострий чилі-соус.' },
-  { id: 'sc_ket', cat: 'sauce', art: 'sauce', name: 'Кетчуп', price: 3, tags: [], desc: 'Класика.' },
-  { id: 'sc_may', cat: 'sauce', art: 'sauce', name: 'Майонез', price: 3, tags: [], desc: 'Класика.' },
-  { id: 'sc_mus', cat: 'sauce', art: 'sauce', name: 'Гірчиця', price: 3, tags: [], desc: 'Помірно гостра.' },
   // Напої
   { id: 'dr_cola', cat: 'drinks', art: 'cola', name: 'Кока-Кола 0.5', price: 8, tags: [], desc: 'Охолоджена.' },
   { id: 'dr_fanta', cat: 'drinks', art: 'cola', name: 'Fanta 0.5', price: 8, tags: [], desc: 'Апельсин.' },
@@ -1802,71 +1821,25 @@ var ITEMS = [
   { id: 'dr_uzvar', cat: 'drinks', art: 'water', name: 'Узвар 0.4', price: 10, tags: ['new'], desc: 'Компот із сухофруктів, по-домашньому.' }
 ];
 
-/** Шауманчіки — колекція «Сезон 1 · Одеса» (12 персонажів) */
-var COBRAS = [
-  { id: 'chef', name: 'Кобра-Шеф', rarity: 'legendary', acc: 'hat',
-    story: 'Керує кухнею на Wierzbięcice. Каже, що рецепт соусу знає лише вона.' },
-  { id: 'baby', name: 'Мала Гадючка', rarity: 'common', acc: 'baby',
-    story: 'Щойно вилупилась, а вже тягне лапу по лаваш.' },
-  { id: 'biker', name: 'Байкер Вжик', rarity: 'rare', acc: 'shades',
-    story: 'Розвозить замовлення швидше за GPS. Ніколи не гальмує на жовте.' },
-  { id: 'odesamama', name: 'Одеса-Мама', rarity: 'epic', acc: 'scarf',
-    story: 'Наливає узвар і питає, чи ти сьогодні поїв.' },
-  { id: 'night', name: 'Нічний Гриль', rarity: 'rare', acc: 'flame',
-    story: 'Виходить на зміну, коли всі сплять. Вогонь не гасить ніколи.' },
-  { id: 'sauckey', name: 'Король Соусів', rarity: 'epic', acc: 'crown',
-    story: 'Носить корону, а замість скіпетра — пляшку BBQ.' },
-  { id: 'sport', name: 'Спорт-Кобра', rarity: 'common', acc: 'dumbbell',
-    story: 'Бере шаурму MAX замість протеїну. Каже, працює краще.' },
-  { id: 'dj', name: 'Діджей Zmiya', rarity: 'rare', acc: 'phones',
-    story: 'Ставить біт у залі на Św. Marcin. Бас відчувається в лаваші.' },
-  { id: 'courier', name: 'Профі-Кур’єр', rarity: 'common', acc: 'bag',
-    story: 'Термосумка більша за нього самого, але замовлення завжди тепле.' },
-  { id: 'gold', name: 'Золота Кобра', rarity: 'mythic', acc: 'gold',
-    story: 'Джекпот сезону. Бачив її лише один стажист, і той звільнився від щастя.' },
-  { id: 'vegan', name: 'Веган-Змій', rarity: 'rare', acc: 'leaf',
-    story: 'Зелений не від злості, а від фалафелю.' },
-  { id: 'xl', name: 'Капітан XL', rarity: 'epic', acc: 'xl',
-    story: 'Тримає всю порцію MAX однією лапою. Другою — ще одну.' }
-];
-
-var RARITY = {
-  common: { name: 'Буденний', cls: 'rar-common' },
-  rare: { name: 'Рідкісний', cls: 'rar-rare' },
-  epic: { name: 'Епічний', cls: 'rar-epic' },
-  legendary: { name: 'Легендарний', cls: 'rar-legendary' },
-  mythic: { name: 'Міфічний', cls: 'rar-mythic' }
-};
-
-/** Нагороди за шаумани */
+/** Нагороди за шаумани. `free` — позиція(ї), що стає безкоштовною в кошику;
+ *  `disc` — відсоток знижки на все замовлення. Заробіток: 3 шаумани за 1 zł. */
 var REWARDS = [
-  { id: 'rw_sauce', name: 'Будь-який соус у подарунок', cost: 150, icon: 'gift', coupon: { kind: 'free', label: 'Соус у подарунок' } },
-  { id: 'rw_drink', name: 'Напій 0.5 у подарунок', cost: 300, icon: 'gift', coupon: { kind: 'free', label: 'Напій 0.5 у подарунок' } },
-  { id: 'rw_fri', name: 'Фрі у подарунок', cost: 600, icon: 'gift', coupon: { kind: 'free', label: 'Фрі у подарунок' } },
-  { id: 'rw_disc', name: 'Знижка −20% на замовлення', cost: 900, icon: 'ticket', coupon: { kind: 'disc', value: 20, label: 'Знижка −20%' } },
-  { id: 'rw_klas', name: 'Класична шаурма у подарунок', cost: 1500, icon: 'gift', coupon: { kind: 'free', label: 'Класична шаурма у подарунок' } },
-  { id: 'rw_max', name: 'Фірмова MAX 1300 г', cost: 3200, icon: 'flame', coupon: { kind: 'free', label: 'Фірмова MAX у подарунок' } }
+  { id: 'rw_drink',  name: 'Напій у подарунок',            cost: 120, icon: 'gift',   free: { cat: 'drinks',  label: 'напій' } },
+  { id: 'rw_side',   name: 'Сайд із фрітури у подарунок',  cost: 180, icon: 'gift',   free: { cat: 'frytura', label: 'сайд' } },
+  { id: 'rw_hotdog', name: 'Хот-дог у подарунок',          cost: 210, icon: 'gift',   free: { cat: 'hotdog',  label: 'хот-дог' } },
+  { id: 'rw_disc',   name: 'Знижка −20% на замовлення',    cost: 250, icon: 'ticket', disc: 20 },
+  { id: 'rw_klas',   name: 'Класична шаурма у подарунок',  cost: 300, icon: 'gift',   free: { id: 'sh_klas',  label: 'класична шаурма' } },
+  { id: 'rw_firm',   name: 'Фірмова або XL у подарунок',   cost: 420, icon: 'flame',  free: { ids: ['sh_firm', 'sh_xl', 'sh_4s', 'ch_firm', 'ch_4s'], label: 'фірмова / XL' } },
+  { id: 'rw_max',    name: 'Фірмова MAX 1300 г у подарунок', cost: 750, icon: 'flame', free: { id: 'sh_max', label: 'Фірмова MAX' } }
 ];
 
 /** Промокоди (для пункту профілю «Використати промокод») */
 var PROMO_CODES = {
-  ODESA: { kind: 'coupon', coupon: { kind: 'disc', value: 10, label: 'Знижка −10% на замовлення' }, msg: 'Купон на −10% додано в гаманець' },
-  LAVASH: { kind: 'coupon', coupon: { kind: 'free', label: 'Фірмовий соус у подарунок' }, msg: 'Купон на соус додано' },
+  ODESA: { kind: 'coupon', coupon: { kind: 'disc', value: 10, label: 'Знижка −10% на замовлення' }, msg: 'Купон на −10% додано' },
+  LAVASH: { kind: 'coupon', coupon: { kind: 'free', free: { cat: 'drinks', label: 'напій' }, label: 'Напій у подарунок' }, msg: 'Купон на напій додано' },
   SHAUM100: { kind: 'points', value: 100, msg: '+100 шауманів на баланс' },
-  MAXMAN: { kind: 'coupon', coupon: { kind: 'free', label: 'Фірмова MAX у подарунок' }, msg: 'Купон на MAX додано' }
+  MAXMAN: { kind: 'coupon', coupon: { kind: 'free', free: { id: 'sh_max', label: 'Фірмова MAX' }, label: 'Фірмова MAX у подарунок' }, msg: 'Купон на MAX додано' }
 };
-
-/** Сегменти «Колеса Одеси» (за годинниковою, з 12-ї) */
-var WHEEL = [
-  { id: 'p50', kind: 'points', value: 50, label: '+50' },
-  { id: 'sauce', kind: 'coupon', coupon: { kind: 'free', label: 'Соус у подарунок' }, label: 'Соус' },
-  { id: 'p100', kind: 'points', value: 100, label: '+100' },
-  { id: 'cobra', kind: 'cobra', label: 'Шауманчік' },
-  { id: 'd15', kind: 'coupon', coupon: { kind: 'disc', value: 15, label: 'Знижка −15%' }, label: '−15%' },
-  { id: 'none', kind: 'none', label: 'Пусто' },
-  { id: 'x2', kind: 'x2', label: 'x2 бали' },
-  { id: 'fri', kind: 'coupon', coupon: { kind: 'free', label: 'Фрі у подарунок' }, label: 'Фрі' }
-];
 
 var TIERS = [
   { id: 'guest', name: 'Гість', min: 0 },
@@ -1911,8 +1884,9 @@ function pShauman(n) { return nf(n) + ' ' + plural(n, ['шауман', 'шаум
 
 function itemById(id) { return ITEMS.find(function (x) { return x.id === id; }) || null; }
 function addonById(id) { return ADDONS.find(function (x) { return x.id === id; }) || null; }
+function sauceById(id) { return SAUCES.find(function (x) { return x.id === id; }) || null; }
 function locById(id) { return LOCATIONS.find(function (x) { return x.id === id; }) || null; }
-function cobraById(id) { return COBRAS.find(function (x) { return x.id === id; }) || null; }
+function rewardById(id) { return REWARDS.find(function (x) { return x.id === id; }) || null; }
 
 function hhmmToMin(s) { var p = s.split(':'); return (+p[0]) * 60 + (+p[1]); }
 
@@ -1962,33 +1936,30 @@ function defaultState() {
     mapFocus: null,
     points: 1240,
     lifetimePoints: 3860,
-    collectibles: ['chef', 'baby', 'biker', 'courier', 'sport'],
     coupons: [],
     ledger: [
-      { id: uid('l'), ts: Date.now() - 86400000 * 2, delta: 34, reason: 'Замовлення #SH-2041' },
-      { id: uid('l'), ts: Date.now() - 86400000 * 2, delta: 50, reason: 'Колесо Одеси' },
-      { id: uid('l'), ts: Date.now() - 86400000 * 9, delta: 28, reason: 'Замовлення #SH-1990' },
-      { id: uid('l'), ts: Date.now() - 86400000 * 20, delta: -300, reason: 'Нагорода: напій у подарунок' }
+      { id: uid('l'), ts: Date.now() - 86400000 * 2, delta: 147, reason: 'Замовлення #SH-2041' },
+      { id: uid('l'), ts: Date.now() - 86400000 * 9, delta: 129, reason: 'Замовлення #SH-2020' },
+      { id: uid('l'), ts: Date.now() - 86400000 * 12, delta: -120, reason: 'Нагорода: напій у подарунок' },
+      { id: uid('l'), ts: Date.now() - 86400000 * 20, delta: 100, reason: 'Промокод SHAUM100' }
     ],
     history: [
-      { id: 'SH-2041', status: 'given', ts: Date.now() - 86400000 * 2 - 3600000 * 4, locId: 'wierz', total: 49, points: 49, pay: 'card',
-        lines: [{ itemId: 'sh_firm', qty: 1, addonIds: ['a_cheese'] }, { itemId: 'dr_cola', qty: 1, addonIds: [] }] },
-      { id: 'SH-2033', status: 'given', ts: Date.now() - 86400000 * 5 - 3600000 * 2, locId: 'marcin', total: 55, points: 55, pay: 'cash',
-        lines: [{ itemId: 'sh_klas', qty: 2, addonIds: [] }, { itemId: 'sc_cheese', qty: 1, addonIds: [] }] },
-      { id: 'SH-2020', status: 'given', ts: Date.now() - 86400000 * 9 - 3600000 * 7, locId: 'plesz', total: 46, points: 46, pay: 'card',
-        lines: [{ itemId: 'ch_od', qty: 1, addonIds: [] }, { itemId: 'fr_fri', qty: 1, addonIds: [] }, { itemId: 'sc_bbq', qty: 1, addonIds: [] }] },
-      { id: 'SH-1994', status: 'given', ts: Date.now() - 86400000 * 16 - 3600000 * 5, locId: 'wroc1', total: 60, points: 60, pay: 'card',
-        lines: [{ itemId: 'sh_max', qty: 1, addonIds: [] }] },
-      { id: 'SH-1981', status: 'given', ts: Date.now() - 86400000 * 24 - 3600000 * 3, locId: 'marcin', total: 42, points: 42, pay: 'cash',
-        lines: [{ itemId: 'sh_haw', qty: 1, addonIds: [] }, { itemId: 'fr_nug', qty: 1, addonIds: [] }] },
-      { id: 'SH-1955', status: 'given', ts: Date.now() - 86400000 * 33 - 3600000 * 6, locId: 'wierz', total: 34, points: 34, pay: 'cash',
-        lines: [{ itemId: 'su_klas', qty: 1, addonIds: [] }, { itemId: 'dr_uzvar', qty: 1, addonIds: [] }] }
+      { id: 'SH-2041', status: 'given', ts: Date.now() - 86400000 * 2 - 3600000 * 4, locId: 'wierz', total: 49, points: 147, pay: 'card',
+        lines: [{ itemId: 'sh_firm', qty: 1, addonIds: ['a_cheese'], sauceIds: ['s_garlic'] }, { itemId: 'dr_cola', qty: 1, addonIds: [], sauceIds: [] }] },
+      { id: 'SH-2033', status: 'given', ts: Date.now() - 86400000 * 5 - 3600000 * 2, locId: 'marcin', total: 52, points: 156, pay: 'cash',
+        lines: [{ itemId: 'sh_klas', qty: 2, addonIds: [], sauceIds: ['s_garlic', 's_hot'] }] },
+      { id: 'SH-2020', status: 'given', ts: Date.now() - 86400000 * 9 - 3600000 * 7, locId: 'plesz', total: 43, points: 129, pay: 'card',
+        lines: [{ itemId: 'ch_od', qty: 1, addonIds: [], sauceIds: ['s_garlic'] }, { itemId: 'fr_fri', qty: 1, addonIds: [], sauceIds: [] }] },
+      { id: 'SH-1994', status: 'given', ts: Date.now() - 86400000 * 16 - 3600000 * 5, locId: 'wroc1', total: 60, points: 180, pay: 'card',
+        lines: [{ itemId: 'sh_max', qty: 1, addonIds: [], sauceIds: ['s_hot'] }] },
+      { id: 'SH-1981', status: 'given', ts: Date.now() - 86400000 * 24 - 3600000 * 3, locId: 'marcin', total: 42, points: 126, pay: 'cash',
+        lines: [{ itemId: 'sh_haw', qty: 1, addonIds: [], sauceIds: ['s_garlic'] }, { itemId: 'fr_nug', qty: 1, addonIds: [], sauceIds: [] }] },
+      { id: 'SH-1955', status: 'given', ts: Date.now() - 86400000 * 33 - 3600000 * 6, locId: 'wierz', total: 34, points: 102, pay: 'cash',
+        lines: [{ itemId: 'su_klas', qty: 1, addonIds: [], sauceIds: ['s_garlic'] }, { itemId: 'dr_uzvar', qty: 1, addonIds: [], sauceIds: [] }] }
     ],
     cart: [],
-    pendingSpinOrderId: null,
-    spinsDone: 0,
     usedPromos: [],
-    walletTab: 'cobras',
+    walletTab: 'rewards',
     menuCat: 'pop',
     menuQuery: '',
     settings: { reduceMotion: false, theme: 'dark', lang: 'ua' },
@@ -2024,9 +1995,6 @@ function parseState(raw) {
   if (typeof o.lifetimePoints === 'number' && isFinite(o.lifetimePoints)) {
     s.lifetimePoints = clamp(Math.round(o.lifetimePoints), 0, 9999999);
   }
-  if (Array.isArray(o.collectibles)) {
-    s.collectibles = o.collectibles.filter(function (id) { return typeof id === 'string' && cobraById(id); });
-  }
   if (Array.isArray(o.coupons)) {
     s.coupons = o.coupons.filter(function (c) {
       return c && typeof c === 'object' && typeof c.code === 'string' && typeof c.label === 'string';
@@ -2051,13 +2019,12 @@ function parseState(raw) {
         lineId: typeof l.lineId === 'string' ? l.lineId : uid('ln'),
         itemId: l.itemId,
         qty: clamp(Math.round(l.qty), 1, 20),
-        addonIds: Array.isArray(l.addonIds) ? l.addonIds.filter(function (a) { return addonById(a); }) : []
+        addonIds: Array.isArray(l.addonIds) ? l.addonIds.filter(function (a) { return addonById(a); }) : [],
+        sauceIds: Array.isArray(l.sauceIds) ? l.sauceIds.filter(function (a) { return sauceById(a); }) : []
       };
     });
   }
-  if (typeof o.pendingSpinOrderId === 'string') s.pendingSpinOrderId = o.pendingSpinOrderId;
-  if (typeof o.spinsDone === 'number') s.spinsDone = clamp(Math.round(o.spinsDone), 0, 999999);
-  if (['rewards', 'cobras', 'history'].indexOf(o.walletTab) !== -1) s.walletTab = o.walletTab;
+  if (['rewards', 'history'].indexOf(o.walletTab) !== -1) s.walletTab = o.walletTab;
   if (CATS.some(function (c) { return c.id === o.menuCat; })) s.menuCat = o.menuCat;
   if (Array.isArray(o.usedPromos)) {
     s.usedPromos = o.usedPromos.filter(function (x) { return typeof x === 'string'; }).slice(0, 40);
@@ -2072,7 +2039,6 @@ function parseState(raw) {
 
 var state = defaultState();
 var _overlay = null;      // поточний оверлей (див. union вище)
-var _game = { status: 'locked' }; // стан міні-гри
 var _saveTimer = 0;
 
 function persist() {
@@ -2081,9 +2047,8 @@ function persist() {
     try {
       var snap = {
         onboarded: state.onboarded, profile: state.profile, points: state.points,
-        lifetimePoints: state.lifetimePoints, collectibles: state.collectibles, coupons: state.coupons,
+        lifetimePoints: state.lifetimePoints, coupons: state.coupons,
         ledger: state.ledger, history: state.history, cart: state.cart,
-        pendingSpinOrderId: state.pendingSpinOrderId, spinsDone: state.spinsDone,
         walletTab: state.walletTab, menuCat: state.menuCat, settings: state.settings, usedPromos: state.usedPromos,
         mapCity: state.mapCity, mapFocus: state.mapFocus
       };
@@ -2099,8 +2064,6 @@ function loadState() {
     raw = txt ? JSON.parse(txt) : null;
   } catch (e) { raw = null; }
   state = parseState(raw);
-  // Похідне: стан міні-гри відновлюється з pendingSpinOrderId
-  _game = state.pendingSpinOrderId ? { status: 'ready', orderId: state.pendingSpinOrderId } : { status: 'locked' };
   state.checkout = { status: 'idle' };
   state.checkoutDraft = null;
 }
@@ -2125,37 +2088,63 @@ function linePrice(line) {
 function cartCount() { return state.cart.reduce(function (s, l) { return s + l.qty; }, 0); }
 function cartSubtotal() { return state.cart.reduce(function (s, l) { return s + linePrice(l); }, 0); }
 
-/** Активна знижка на чекауті: {kind,value,label,source} | null */
+/** Скільки шауманів за 1 zł */
+var EARN_RATE = 3;
+
+/** Чи підходить позиція під `free`-нагороду ({id} | {ids:[]} | {cat}) */
+function freeMatches(free, itemId) {
+  if (!free) return false;
+  if (free.id) return itemId === free.id;
+  if (free.ids) return free.ids.indexOf(itemId) !== -1;
+  if (free.cat) { var it = itemById(itemId); return it && it.cat === free.cat; }
+  return false;
+}
+/** Вартість безкоштовної позиції в кошику під `free` (найдорожча з відповідних, 1 шт, без добавок). */
+function freeItemValue(free) {
+  var best = 0;
+  state.cart.forEach(function (l) {
+    if (!freeMatches(free, l.itemId)) return;
+    var it = itemById(l.itemId);
+    if (it && it.price > best) best = it.price;
+  });
+  return best;
+}
+
+/** Активна знижка/нагорода на чекауті: {kind:'disc',value,...} | {kind:'free',free,...} | null */
 function activeDiscount() {
   var d = state.checkoutDraft;
   if (!d) return null;
   if (d.discount === 'promo') return { kind: 'disc', value: 10, label: 'Промокод ODESA −10%', source: 'promo' };
   if (d.discount && d.discount.indexOf('coupon:') === 0) {
     var code = d.discount.slice(7);
-    var c = state.coupons.find(function (x) { return x.code === code && !x.used && x.kind === 'disc'; });
-    if (c) return { kind: 'disc', value: c.value, label: c.label, source: code };
+    var c = state.coupons.find(function (x) { return x.code === code && !x.used; });
+    if (c && c.kind === 'disc') return { kind: 'disc', value: c.value, label: c.label, source: code };
+    if (c && c.kind === 'free') return { kind: 'free', free: c.free, label: c.label, source: code };
   }
   return null;
 }
 function discountAmount(sub) {
   var d = activeDiscount();
-  return d ? Math.round(sub * d.value / 100) : 0;
+  if (!d) return 0;
+  if (d.kind === 'free') return Math.min(sub, freeItemValue(d.free));
+  return Math.round(sub * d.value / 100);
 }
 function cartTotal() {
   var sub = cartSubtotal();
   return Math.max(0, sub - discountAmount(sub));
 }
-function earnPoints() { return Math.round(cartTotal()); }
+function earnPoints() { return Math.round(cartTotal() * EARN_RATE); }
 
 function menuItemsFor(cat) {
   if (cat === 'pop') return ITEMS.filter(function (i) { return i.tags.indexOf('hit') !== -1; });
   return ITEMS.filter(function (i) { return i.cat === cat; });
 }
 function lineFor(itemId) {
-  // Тільки для позицій без добавок (швидкі +/- у списку меню)
-  return state.cart.find(function (l) { return l.itemId === itemId && l.addonIds.length === 0; }) || null;
+  // Тільки для позицій без кастомізації (швидкі +/- у списку меню)
+  return state.cart.find(function (l) {
+    return l.itemId === itemId && l.addonIds.length === 0 && (!l.sauceIds || l.sauceIds.length === 0);
+  }) || null;
 }
-function collectedCount() { return state.collectibles.length; }
 
 /* =====================================================================
    ШАР ДІЙ (actions) — уся логіка, жодної розмітки
@@ -2165,7 +2154,7 @@ var _clockT = 0;
 var actions = {
   nav: function (d) {
     closeOverlay(true);
-    if (d.to === 'wallet' && ['cobras', 'rewards', 'history'].indexOf(d.tab) !== -1) {
+    if (d.to === 'wallet' && ['rewards', 'history'].indexOf(d.tab) !== -1) {
       state.walletTab = d.tab;
     }
     setState({ nav: d.to });
@@ -2194,7 +2183,6 @@ var actions = {
     openOverlay({ type: 'location', locId: d.id });
   },
   openReward: function (d) { openOverlay({ type: 'reward', rewardId: d.id }); },
-  openCobra: function (d) { openOverlay({ type: 'cobra', cobraId: d.id }); },
   openReset: function () { openOverlay({ type: 'reset' }); },
   openPromo: function () { openOverlay({ type: 'promo' }); },
   openSocials: function () { openOverlay({ type: 'socials' }); },
@@ -2331,11 +2319,14 @@ var actions = {
     persist(); render();
   },
 
-  /** Додати з деталей позиції (можливі добавки/кількість) */
+  /** Додати з деталей позиції (соус / добавки / кількість) */
   addFromSheet: function () {
     var ov = _overlay; if (!ov || ov.type !== 'item') return;
     var draft = ov.draft;
-    state.cart.push({ lineId: uid('ln'), itemId: ov.itemId, qty: draft.qty, addonIds: draft.addonIds.slice() });
+    state.cart.push({
+      lineId: uid('ln'), itemId: ov.itemId, qty: draft.qty,
+      addonIds: draft.addonIds.slice(), sauceIds: (draft.sauceIds || []).slice()
+    });
     persist();
     closeOverlay(true);
     render();
@@ -2346,6 +2337,13 @@ var actions = {
     var ov = _overlay; if (!ov || ov.type !== 'item') return;
     var i = ov.draft.addonIds.indexOf(d.id);
     if (i === -1) ov.draft.addonIds.push(d.id); else ov.draft.addonIds.splice(i, 1);
+    renderOverlay();
+  },
+  sheetToggleSauce: function (d) {
+    var ov = _overlay; if (!ov || ov.type !== 'item') return;
+    if (!ov.draft.sauceIds) ov.draft.sauceIds = [];
+    var i = ov.draft.sauceIds.indexOf(d.id);
+    if (i === -1) ov.draft.sauceIds.push(d.id); else ov.draft.sauceIds.splice(i, 1);
     renderOverlay();
   },
   sheetQty: function (d) {
@@ -2436,74 +2434,20 @@ var actions = {
     setState({ nav: 'cart' });
   },
 
-  goSpin: function () { openOverlay({ type: 'wheel' }); },
-  spinWheel: function () {
-    if (_game.status !== 'ready') return;
-    var idx = pickWheelIndex();
-    var seg = 360 / WHEEL.length;
-    var rot = 360 * 5 + (360 - (idx * seg + seg / 2));
-    var orderId = _game.orderId;
-    _game = { status: 'spinning', orderId: orderId, targetIndex: idx, rot: rot };
-
-    var el = document.getElementById('wheelEl');
-    var cta = document.getElementById('wheelCta');
-    if (cta) cta.innerHTML = '<p class="muted mono" aria-live="polite">Крутимо колесо…</p>';
-    if (el) { void el.offsetWidth; el.style.transform = 'rotate(' + rot + 'deg)'; }
-
-    var prize = WHEEL[idx];
-    var settle = function () {
-      if (_game.status !== 'spinning') return;
-      applyWheelPrize(prize);
-      state.spinsDone += 1;
-      state.pendingSpinOrderId = null;
-      if (prize.kind === 'cobra') {
-        var res = grantCobra();
-        _game = { status: 'reveal', orderId: orderId, targetIndex: idx, cobraId: res.id, dup: res.dup };
-      } else {
-        _game = { status: 'result', orderId: orderId, targetIndex: idx, prize: prize };
-      }
-      persist();
-      renderOverlay();
-    };
-    window.setTimeout(settle, prefersReducedMotion() ? 340 : 3500);
-  },
-  revealScratch: function () {
-    if (_game.status !== 'reveal') return;
-    _game = { status: 'result', orderId: _game.orderId, prize: { kind: 'cobra', label: 'Шауманчік' }, cobraId: _game.cobraId, dup: _game.dup };
-    renderOverlay();
-  },
-  claimPrize: function () {
-    _game = { status: 'locked' };
-    state.pendingSpinOrderId = null;
-    persist();
-    closeOverlay(true);
-    setState({ nav: 'wallet', walletTab: 'cobras' });
-    focusScreen();
-  },
-
   redeemReward: function (d) {
-    var rw = REWARDS.find(function (x) { return x.id === d.id; });
+    var rw = rewardById(d.id);
     if (!rw || state.points < rw.cost) return;
     state.points -= rw.cost;
     var code = 'SH-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-    var c = Object.assign({ id: uid('c'), code: code, used: false, ts: Date.now() }, rw.coupon);
+    var c = rw.disc
+      ? { id: uid('c'), code: code, used: false, ts: Date.now(), kind: 'disc', value: rw.disc, label: rw.name }
+      : { id: uid('c'), code: code, used: false, ts: Date.now(), kind: 'free', free: rw.free, label: rw.name };
     state.coupons.unshift(c);
     state.ledger.unshift({ id: uid('l'), ts: Date.now(), delta: -rw.cost, reason: 'Нагорода: ' + rw.name });
     persist();
     closeOverlay(true);
     render();
-    toast('Купон додано: ' + code, 'accent');
-  },
-
-  convertDup: function (d) {
-    // Обмін дубля шауманчіка -> 250 балів (демо-кнопка в деталях персонажа)
-    state.points += 250;
-    state.lifetimePoints += 250;
-    state.ledger.unshift({ id: uid('l'), ts: Date.now(), delta: 250, reason: 'Обмін дубля: ' + (cobraById(d.id) || {}).name });
-    persist();
-    closeOverlay(true);
-    render();
-    toast('+250 шауманів за дубль', 'accent');
+    toast('Купон додано — застосуй його при оформленні', 'accent');
   },
 
   editName: function () { openOverlay({ type: 'name' }); },
@@ -2544,7 +2488,6 @@ var actions = {
   confirmReset: function () {
     try { localStorage.removeItem(STORE_KEY); } catch (e) {}
     state = defaultState();
-    _game = { status: 'locked' };
     _overlay = null;
     persist();
     renderOnboarding();
@@ -2564,7 +2507,7 @@ function completeOrder() {
   var order = {
     id: id, status: 'preparing', ts: Date.now(), locId: d.locId, total: total, points: pts,
     pay: d.pay, etaMin: 18 + Math.floor(Math.random() * 10),
-    lines: state.cart.map(function (l) { return { itemId: l.itemId, qty: l.qty, addonIds: l.addonIds.slice() }; })
+    lines: state.cart.map(function (l) { return { itemId: l.itemId, qty: l.qty, addonIds: l.addonIds.slice(), sauceIds: (l.sauceIds || []).slice() }; })
   };
   state.history.unshift(order);
   state.points += pts;
@@ -2580,8 +2523,6 @@ function completeOrder() {
   state.cart = [];
   state.checkout = { status: 'done', orderId: id };
   state.checkoutDraft = null;
-  state.pendingSpinOrderId = id;
-  _game = { status: 'ready', orderId: id };
 
   // авто-перехід статусу замовлення preparing -> ready
   window.setTimeout(function () {
@@ -2592,51 +2533,6 @@ function completeOrder() {
   persist();
   setState({ nav: 'confirm' });
   focusScreen();
-}
-
-/** Зважений вибір сегмента колеса. Перший спін «підкручено» на шауманчіка (демо-флоу). */
-function pickWheelIndex() {
-  if (state.spinsDone === 0) return 3; // 'cobra'
-  var weights = { p50: 22, sauce: 14, p100: 12, cobra: 8, d15: 14, none: 12, x2: 6, fri: 12 };
-  var bag = [];
-  WHEEL.forEach(function (w, i) { for (var k = 0; k < (weights[w.id] || 10); k++) bag.push(i); });
-  return bag[Math.floor(Math.random() * bag.length)];
-}
-
-function applyWheelPrize(seg) {
-  if (seg.kind === 'points') {
-    state.points += seg.value;
-    state.lifetimePoints += seg.value;
-    state.ledger.unshift({ id: uid('l'), ts: Date.now(), delta: seg.value, reason: 'Колесо Одеси' });
-  } else if (seg.kind === 'x2') {
-    var o = state.history.find(function (x) { return x.id === _game.orderId; });
-    var bonus = o ? o.points : 0;
-    if (bonus > 0) {
-      state.points += bonus;
-      state.lifetimePoints += bonus;
-      state.ledger.unshift({ id: uid('l'), ts: Date.now(), delta: bonus, reason: 'Колесо: x2 бали за замовлення' });
-    }
-  } else if (seg.kind === 'coupon') {
-    var code = 'SH-' + Math.random().toString(36).slice(2, 6).toUpperCase();
-    state.coupons.unshift(Object.assign({ id: uid('c'), code: code, used: false, ts: Date.now() }, seg.coupon));
-  }
-}
-
-/** Видати випадкового шауманчіка. Дубль -> +250 балів. */
-function grantCobra() {
-  var missing = COBRAS.filter(function (c) { return state.collectibles.indexOf(c.id) === -1; });
-  if (missing.length === 0) {
-    state.points += 250; state.lifetimePoints += 250;
-    state.ledger.unshift({ id: uid('l'), ts: Date.now(), delta: 250, reason: 'Дубль шауманчіка' });
-    return { id: COBRAS[Math.floor(Math.random() * COBRAS.length)].id, dup: true };
-  }
-  // зважено за рідкістю (буденні частіше)
-  var w = { common: 40, rare: 22, epic: 10, legendary: 5, mythic: 1 };
-  var bag = [];
-  missing.forEach(function (c) { for (var k = 0; k < w[c.rarity]; k++) bag.push(c.id); });
-  var pick = bag.length ? bag[Math.floor(Math.random() * bag.length)] : missing[0].id;
-  state.collectibles.push(pick);
-  return { id: pick, dup: false };
 }
 </script>
 
@@ -2753,41 +2649,6 @@ function foodArt(kind, big) {
     'preserveAspectRatio="xMidYMid meet">' + tile + (g[kind] || g.shawarma) + '</svg>';
 }
 
-/** Персонаж-кобра з аксесуаром. Один базовий силует + шар acc. */
-function cobraArt(cobra) {
-  var c = typeof cobra === 'string' ? cobraById(cobra) : cobra;
-  if (!c) return '';
-  var body = c.acc === 'gold' ? 'var(--accent)' : (c.acc === 'leaf' ? 'var(--ok)' : 'var(--surface-3)');
-  var stroke = 'var(--text)';
-  var scale = c.acc === 'xl' ? 1.12 : (c.acc === 'baby' ? 0.82 : 1);
-  var acc = {
-    hat: '<path d="M34 22 q14 -14 28 0 q6 -2 4 6 h-36 q-2 -8 4 -6z" fill="var(--text)" stroke="' + stroke + '" stroke-width="2.5"/>',
-    shades: '<path d="M30 40 h14 v8 h-14z M52 40 h14 v8 h-14z M44 43 h8" fill="var(--on-accent)" stroke="' + stroke + '" stroke-width="2"/>',
-    scarf: '<path d="M28 58 q20 12 40 0 l-4 10 q-16 8 -32 0z" fill="var(--accent)" stroke="' + stroke + '" stroke-width="2.5"/>',
-    flame: '<path d="M60 20 q6 8 2 14 q6 -1 4 -10 q8 8 2 16 q-4 6 -10 4 q-8 -4 -4 -14 q3 -6 6 -10z" fill="var(--accent)" stroke="' + stroke + '" stroke-width="2"/>',
-    crown: '<path d="M34 20 l6 -12 8 8 8 -8 8 8 6 -8 2 12z" fill="var(--accent)" stroke="' + stroke + '" stroke-width="2.5"/>',
-    dumbbell: '<path d="M20 70 h10 M18 64 v12 M30 70 h36 M70 70 h10 M78 64 v12" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>',
-    phones: '<path d="M28 44 a20 20 0 0 1 40 0 M24 44 h8 v14 h-8z M64 44 h8 v14 h-8z" fill="var(--on-accent)" stroke="' + stroke + '" stroke-width="2.5"/>',
-    bag: '<rect x="60" y="52" width="24" height="24" rx="2" fill="var(--accent)" stroke="' + stroke + '" stroke-width="2.5"/><path d="M66 52 v-4 h12 v4" stroke="' + stroke + '" stroke-width="2.5"/>',
-    leaf: '<path d="M64 30 q14 4 12 18 q-14 2 -16 -10 q1 -6 4 -8z" fill="var(--ok)" stroke="' + stroke + '" stroke-width="2"/>',
-    baby: '<circle cx="66" cy="36" r="4" fill="var(--accent)"/>',
-    xl: '<path d="M14 78 h68" stroke="var(--accent)" stroke-width="5" stroke-linecap="round"/>',
-    gold: '<path d="M48 12 l3 7 7 1 -5 5 1 7 -6 -3 -6 3 1 -7 -5 -5 7 -1z" fill="var(--on-accent)"/>'
-  };
-  return '<svg viewBox="0 0 96 96" width="100%" height="100%" role="img" aria-label="' + esc(c.name) + '">' +
-    '<g transform="translate(48 52) scale(' + scale + ') translate(-48 -52)">' +
-    // капюшон
-    '<path d="M24 54 q0 -34 24 -34 q24 0 24 34 q0 6 -4 10 h-40 q-4 -4 -4 -10z" fill="' + body + '" stroke="' + stroke + '" stroke-width="3"/>' +
-    // тіло/хвіст
-    '<path d="M40 72 q-14 6 -20 -6 q-4 -10 6 -14" fill="none" stroke="' + stroke + '" stroke-width="3" stroke-linecap="round"/>' +
-    // очі
-    '<circle cx="40" cy="44" r="3.4" fill="' + stroke + '"/><circle cx="56" cy="44" r="3.4" fill="' + stroke + '"/>' +
-    // язик
-    '<path d="M48 58 v8 l-3 4 3 -1 3 1 -3 -4z" fill="var(--accent)"/>' +
-    (acc[c.acc] || '') +
-    '</g></svg>';
-}
-
 /* --------- частини каркаса --------- */
 
 function topBarHTML() {
@@ -2832,7 +2693,7 @@ function bottomNavHTML() {
     { to: 'menu', ic: 'menu', label: 'Меню' },
     { to: 'map', ic: 'map', label: 'Мапа' },
     { to: 'card', center: true },
-    { to: 'wallet', ic: 'collection', label: 'Шауманчіки' },
+    { to: 'wallet', ic: 'gift', label: 'Бонуси' },
     { to: 'profile', ic: 'user', label: 'Профіль' }
   ];
   return '<nav class="bottomnav" aria-label="Головна навігація">' + tabs.map(function (t) {
@@ -3291,7 +3152,7 @@ screens.card = function () {
       '</p>' +
     '</div>' +
     '<div class="code-card">' +
-      '<div class="cc-hint">покажіть на касі · нарахування 1 zł = 1 шауман</div>' +
+      '<div class="cc-hint">покажіть на касі · нарахування 1 zł = ' + EARN_RATE + ' шаумани</div>' +
       '<div class="barcode" role="img" aria-label="Демонстраційний штрихкод картки">' + bars + '</div>' +
       '<div class="qr-grid" role="img" aria-label="Демонстраційний QR-код картки лояльності">' + qr + '</div>' +
       '<div class="cc-num">SHM · ' + String(100000 + (state.lifetimePoints % 900000)) + '</div>' +
@@ -3305,42 +3166,43 @@ screens.card = function () {
 /* -------------------------- ГАМАНЕЦЬ -------------------------- */
 screens.wallet = function () {
   var tier = tierByPoints(state.lifetimePoints);
-  var tab = state.walletTab || 'cobras';
+  var tab = state.walletTab === 'history' ? 'history' : 'rewards';
 
   var head = '<div class="screen-pad" style="padding-bottom:10px">' +
-    '<p class="eyebrow">Шауманчіки</p>' +
+    '<p class="eyebrow">Бонуси</p>' +
     '<div style="display:flex;align-items:baseline;gap:10px;margin-top:6px">' +
       '<span class="h1 mono">' + nf(state.points) + '</span>' +
       '<span class="muted" style="font-size:13px">шауманів · рівень «' + esc(tier.name) + '»</span>' +
-    '</div></div>';
+    '</div>' +
+    '<p class="muted" style="font-size:12px;margin-top:6px">1 zł = ' + EARN_RATE + ' шаумани. Обмінюй на їжу — застосується при оформленні.</p>' +
+  '</div>';
 
-  // Колекція — головне; Нагороди та Історія — поруч, зверху, щоб можна було знайти
   var chips = '<div class="wallet-chips" role="tablist" aria-label="Розділи">' +
-    [['cobras', 'Колекція', 'collection'], ['rewards', 'Нагороди', 'gift'], ['history', 'Історія', 'receipt']]
+    [['rewards', 'Нагороди', 'gift'], ['history', 'Чеки', 'receipt']]
       .map(function (t) {
         var on = tab === t[0];
         return '<button class="chip" role="tab" data-action="setWalletTab" data-tab="' + t[0] + '" ' +
           'aria-pressed="' + on + '" aria-selected="' + on + '">' + icon(t[2], 14) + esc(t[1]) + '</button>';
       }).join('') + '</div>';
 
-  var body = tab === 'rewards' ? walletRewards()
-    : tab === 'history' ? walletReceipts()
-    : walletCobras();
-
+  var body = tab === 'history' ? walletReceipts() : walletRewards();
   return head + chips + '<div class="screen-anim">' + body + '</div>';
 };
 
 function walletRewards() {
   var coupons = state.coupons.filter(function (c) { return !c.used; });
   var cHTML = coupons.length
-    ? '<p class="section-label">Мої купони</p>' + coupons.map(function (c) {
-        return '<div class="coupon-row" style="margin:0 16px 12px">' + icon('ticket', 18) +
-          '<span><span class="cr-label">' + esc(c.label) + '</span><br><span class="cr-code mono">' + esc(c.code) + '</span></span></div>';
-      }).join('')
+    ? '<p class="section-label">Мої купони · покажи при оформленні</p>' +
+      '<div style="padding:0 16px 6px">' + coupons.map(function (c) {
+        return '<div class="coupon-row" style="margin:0 0 10px">' + icon(c.kind === 'disc' ? 'ticket' : 'gift', 18) +
+          '<span><span class="cr-label">' + esc(c.label) + '</span><br>' +
+          '<span class="cr-code mono">' + esc(c.code) + '</span></span></div>';
+      }).join('') + '</div>'
     : '';
 
-  var list = '<p class="section-label">Обміняти шаумани</p><div style="padding:0 16px 24px">' +
-    REWARDS.map(function (rw) {
+  var sorted = REWARDS.slice().sort(function (a, b) { return a.cost - b.cost; });
+  var list = '<p class="section-label">Обміняти шаумани на їжу</p><div style="padding:0 16px 24px">' +
+    sorted.map(function (rw) {
       var can = state.points >= rw.cost;
       return '<button class="reward-card" data-action="openReward" data-id="' + rw.id + '" ' +
         (can ? '' : 'aria-disabled="true"') + '>' +
@@ -3352,31 +3214,6 @@ function walletRewards() {
     }).join('') + '</div>';
 
   return cHTML + list;
-}
-
-function walletCobras() {
-  var have = collectedCount(), total = COBRAS.length;
-  var pct = (have / total) * 100;
-  var head = '<div style="padding:16px 16px 4px">' +
-    '<div style="display:flex;justify-content:space-between;align-items:center">' +
-      '<span class="h2">Сезон 1 · Одеса</span>' +
-      '<span class="mono muted" style="font-size:13px">' + have + ' / ' + total + '</span>' +
-    '</div>' +
-    '<div class="progress"><i style="width:' + pct + '%"></i></div>' +
-    '<p class="muted" style="font-size:12px;margin-top:8px">Зібери всіх 12 — і отримаєш Фірмову MAX + мерч. Дублі можна обміняти на 250 шауманів.</p>' +
-  '</div>';
-
-  var grid = '<div class="cobra-grid">' + COBRAS.map(function (c) {
-    var owned = state.collectibles.indexOf(c.id) !== -1;
-    return '<button class="cobra-cell ' + (owned ? '' : 'locked') + '" data-action="openCobra" data-id="' + c.id + '" ' +
-      'aria-label="' + esc(c.name) + (owned ? ' — зібрано' : ' — ще не зібрано') + '">' +
-      cobraArt(c) +
-      (owned ? '' : '<span class="cc-lock">' + icon('lock', 22) + '</span>') +
-      '<span class="cc-rar ' + RARITY[c.rarity].cls + '" title="' + RARITY[c.rarity].name + '"></span>' +
-    '</button>';
-  }).join('') + '</div>';
-
-  return head + grid;
 }
 
 /** Історія = чеки покупок (де, що, за скільки) — як у Biedronka */
@@ -3409,7 +3246,11 @@ function receiptCard(o) {
       return '<div class="rc-line rc-sub"><span>+ ' + esc(a.name) + (l.qty > 1 ? ' ×' + l.qty : '') + '</span>' +
         '<span class="mono">' + zl(a.price * l.qty) + '</span></div>';
     }).join('');
-    return row + adds;
+    var sauceNames = (l.sauceIds || []).map(function (sid) { var s = sauceById(sid); return s ? s.name : ''; }).filter(Boolean);
+    var sauce = sauceNames.length
+      ? '<div class="rc-line rc-sub"><span>Соус: ' + esc(sauceNames.join(', ')) + '</span><span class="mono">0</span></div>'
+      : '';
+    return row + adds + sauce;
   }).join('');
 
   return '<div class="receipt">' +
@@ -3494,9 +3335,11 @@ screens.cart = function () {
   var lines = state.cart.map(function (l) {
     var it = itemById(l.itemId);
     var adds = l.addonIds.map(function (id) { return (addonById(id) || {}).name; }).filter(Boolean).join(', ');
+    var sauces = (l.sauceIds || []).map(function (id) { return (sauceById(id) || {}).name; }).filter(Boolean).join(', ');
     return '<div class="line-item">' +
       '<span class="li-thumb">' + itemArt(it) + '</span>' +
       '<span><span class="li-name">' + esc(it.name) + '</span>' +
+        (sauces ? '<span class="li-add">Соус: ' + esc(sauces) + '</span>' : '') +
         (adds ? '<span class="li-add">+ ' + esc(adds) + '</span>' : '') +
         '<span class="mi-qty" style="margin-top:8px">' +
           '<button data-action="lineDec" data-line="' + l.lineId + '" aria-label="Менше">' + icon('minus', 16) + '</button>' +
@@ -3517,7 +3360,7 @@ screens.cart = function () {
     lines +
     '<div class="summary">' +
       '<div class="summary-row"><span class="muted">Сума</span><span class="mono">' + zl(sub) + '</span></div>' +
-      '<div class="summary-row earn"><span>Нарахуємо шауманів</span><span>+' + nf(Math.round(sub)) + '</span></div>' +
+      '<div class="summary-row earn"><span>Нарахуємо шауманів</span><span>+' + nf(Math.round(sub) * EARN_RATE) + '</span></div>' +
       '<div class="summary-row total"><span>До сплати</span><span class="mono">' + zl(sub) + '</span></div>' +
     '</div>' +
     '<div class="screen-pad" style="padding-top:0">' +
@@ -3558,13 +3401,21 @@ screens.checkout = function () {
       '<span class="ro-sub">' + p[2] + '</span></span></button>';
   }).join('');
 
-  var discCoupons = state.coupons.filter(function (c) { return !c.used && c.kind === 'disc'; });
-  var discPicker = discCoupons.map(function (c) {
+  var myCoupons = state.coupons.filter(function (c) { return !c.used && (c.kind === 'disc' || c.kind === 'free'); });
+  var discPicker = myCoupons.map(function (c) {
     var on = d.discount === ('coupon:' + c.code);
+    var subtxt;
+    if (c.kind === 'free') {
+      var v = freeItemValue(c.free);
+      subtxt = v ? '−' + zl(v) + ' · ' + c.code : 'додай «' + esc(c.free.label) + '» у кошик';
+    } else {
+      subtxt = '−' + c.value + '% · ' + c.code;
+    }
     return '<button class="radio-opt" data-action="pickCoupon" data-code="' + c.code + '" data-checked="' + on + '">' +
       '<span class="ro-mark"></span><span class="ro-body"><span class="ro-name">' + esc(c.label) + '</span>' +
-      '<span class="ro-sub mono">' + esc(c.code) + '</span></span></button>';
+      '<span class="ro-sub mono">' + subtxt + '</span></span></button>';
   }).join('');
+  var discRowLabel = disc && disc.kind === 'free' ? 'Нагорода' : 'Знижка';
 
   var payBusy = st.status === 'processing';
   var payLabel = payBusy ? 'Обробляємо…' : (d.pay === 'cash' ? 'Підтвердити замовлення' : 'Оплатити ' + zl(total));
@@ -3597,7 +3448,7 @@ screens.checkout = function () {
       '<p class="section-label" style="padding-left:0">Оплата</p>' +
       '<div class="radio-list">' + pays + '</div>' +
 
-      '<p class="section-label" style="padding-left:0">Промокод або купон</p>' +
+      '<p class="section-label" style="padding-left:0">Промокод, купон або нагорода</p>' +
       '<div class="field" style="flex-direction:row;gap:8px">' +
         '<label class="sr-only" for="promoInput">Промокод</label>' +
         '<input id="promoInput" type="text" placeholder="Напр., ODESA" value="' + esc(d.promoInput || '') + '" autocomplete="off" spellcheck="false" style="flex:1" />' +
@@ -3605,12 +3456,15 @@ screens.checkout = function () {
       '</div>' +
       (discPicker ? '<div class="radio-list" style="margin-bottom:8px">' + discPicker + '</div>' : '') +
       (disc ? '<button class="chip" data-action="clearDiscount">' + icon('close', 14) + ' ' + esc(disc.label) + ' — прибрати</button>' : '') +
+      (disc && disc.kind === 'free' && !da
+        ? '<div class="helper-note" style="margin:10px 0 0"><span>' + icon('info', 14) + '</span>Додай «' + esc(disc.free.label) + '» у кошик — тоді нагорода застосується.</div>'
+        : '') +
     '</div>' +
 
     '<div class="summary">' +
       '<div class="summary-row"><span class="muted">Сума</span><span class="mono">' + zl(sub) + '</span></div>' +
-      (da ? '<div class="summary-row"><span class="muted">Знижка</span><span class="mono">−' + zl(da) + '</span></div>' : '') +
-      '<div class="summary-row earn"><span>Нарахуємо шауманів</span><span>+' + nf(Math.round(total)) + '</span></div>' +
+      (da ? '<div class="summary-row"><span class="muted">' + discRowLabel + '</span><span class="mono">−' + zl(da) + '</span></div>' : '') +
+      '<div class="summary-row earn"><span>Нарахуємо шауманів</span><span>+' + nf(Math.round(total) * EARN_RATE) + '</span></div>' +
       '<div class="summary-row total"><span>До сплати</span><span class="mono">' + zl(total) + '</span></div>' +
     '</div>' +
     errBlock +
@@ -3628,7 +3482,8 @@ screens.confirm = function () {
   var order = st.status === 'done' ? state.history.find(function (o) { return o.id === st.orderId; }) : state.history[0];
   if (!order) { return stateBox(brandMark(), 'Замовлення не знайдено', '', '<button class="btn btn-primary" data-action="nav" data-to="menu">До меню</button>'); }
   var loc = locById(order.locId) || {};
-  var canSpin = _game.status === 'ready' && _game.orderId === order.id;
+  var nextRw = REWARDS.slice().sort(function (a, b) { return a.cost - b.cost; })
+    .find(function (r) { return state.points < r.cost; });
 
   return '<div class="screen-pad" style="text-align:center;padding-top:40px">' +
       logoImg('confirm-logo') +
@@ -3642,17 +3497,14 @@ screens.confirm = function () {
       '<div class="summary-row"><span class="muted">До сплати</span><span class="mono">' + zl(order.total) + '</span></div>' +
       '<div class="summary-row"><span class="muted">Спосіб</span><span>' + (order.pay === 'cash' ? 'Готівка при отриманні' : 'Картка (демо)') + '</span></div>' +
       '<div class="summary-row earn"><span>Нараховано шауманів</span><span>+' + nf(order.points) + '</span></div>' +
+      '<div class="summary-row total"><span>Баланс</span><span class="mono">' + nf(state.points) + ' ш</span></div>' +
     '</div>' +
-    (canSpin
-      ? '<div class="screen-pad">' +
-          '<div style="border:1px solid var(--accent);border-radius:8px;padding:20px;text-align:center;box-shadow:var(--glow)">' +
-            '<div style="width:56px;height:56px;margin:0 auto 8px;color:var(--accent-ink)">' + icon('spark', 56) + '</div>' +
-            '<p class="h2">Крутни «Колесо Одеси»</p>' +
-            '<p class="muted" style="font-size:12px;margin:6px 0 14px">Один безкоштовний спін за це замовлення. Можна виграти шауманчіка.</p>' +
-            '<button class="btn btn-primary btn-block" data-action="goSpin">Крутити колесо</button>' +
-          '</div>' +
-        '</div>'
-      : '<div class="screen-pad"><p class="muted" style="font-size:12px;text-align:center">Спін за це замовлення вже використано.</p></div>') +
+    '<div class="screen-pad">' +
+      '<button class="btn btn-primary btn-block" data-action="nav" data-to="wallet" data-tab="rewards">' + icon('gift', 18) + ' Мої нагороди</button>' +
+      (nextRw
+        ? '<p class="muted" style="font-size:12px;text-align:center;margin-top:10px">Ще ' + nf(nextRw.cost - state.points) + ' шауманів до нагороди «' + esc(nextRw.name) + '».</p>'
+        : '<p class="muted" style="font-size:12px;text-align:center;margin-top:10px">Балів вистачає на будь-яку нагороду — забирай у розділі «Бонуси».</p>') +
+    '</div>' +
     '<div class="screen-pad" style="padding-top:0;display:flex;gap:8px">' +
       '<button class="btn btn-ghost btn-block" data-action="nav" data-to="menu">До меню</button>' +
       '<button class="btn btn-ghost btn-block" data-action="nav" data-to="profile">Мої замовлення</button>' +
@@ -3686,9 +3538,7 @@ function overlayHTML() {
   if (!ov) return '';
   if (ov.type === 'item') return itemSheet(ov);
   if (ov.type === 'location') return locationSheet(ov);
-  if (ov.type === 'wheel') return wheelSheet();
   if (ov.type === 'reward') return rewardSheet(ov);
-  if (ov.type === 'cobra') return cobraSheet(ov);
   if (ov.type === 'name') return nameSheet();
   if (ov.type === 'reset') return resetSheet();
   if (ov.type === 'promo') return promoSheet();
@@ -3782,25 +3632,44 @@ function itemSheet(ov) {
   var it = itemById(ov.itemId);
   if (!it) return '';
   var draft = ov.draft;
+  if (!draft.sauceIds) draft.sauceIds = [];
   var base = it.price;
   var addSum = draft.addonIds.reduce(function (s, id) { return s + (addonById(id) || {}).price; }, 0);
   var totalOne = base + addSum;
   var canAdd = ADDON_CATS.indexOf(it.cat) !== -1;
 
+  var sauceHTML = canAdd
+    ? '<div class="cz-block">' +
+        '<div class="cz-head"><span class="cz-title">Соус</span>' +
+          '<span class="cz-note">' + (draft.sauceIds.length ? draft.sauceIds.length + ' обр.' : 'безкоштовно') + '</span></div>' +
+        '<div class="sauce-wrap">' + SAUCES.map(function (s) {
+          var on = draft.sauceIds.indexOf(s.id) !== -1;
+          return '<button class="sauce-chip" data-action="sheetToggleSauce" data-id="' + s.id + '" ' +
+            'aria-pressed="' + on + '"' + (on ? ' data-on="1"' : '') + '>' +
+            (s.spicy ? icon('flame', 12) + ' ' : '') + esc(s.name) + '</button>';
+        }).join('') + '</div>' +
+      '</div>'
+    : '';
+
   var addonHTML = canAdd
-    ? '<p class="section-label" style="padding:16px 0 8px">Добавки</p>' + ADDONS.map(function (a) {
-        var on = draft.addonIds.indexOf(a.id) !== -1;
-        return '<button class="addon-opt" data-action="sheetToggleAddon" data-id="' + a.id + '" data-checked="' + on + '" aria-pressed="' + on + '">' +
-          '<span class="ao-box">' + (on ? icon('check', 12) : '') + '</span>' +
-          '<span class="ao-name">' + esc(a.name) + '</span>' +
-          '<span class="ao-price mono">+' + a.price + ' zł</span></button>';
-      }).join('')
+    ? '<div class="cz-block">' +
+        '<div class="cz-head"><span class="cz-title">Додати до смаку</span>' +
+          '<span class="cz-note">' + (addSum ? '+' + addSum + ' zł' : 'за бажанням') + '</span></div>' +
+        '<div class="addon-list">' + ADDONS.map(function (a) {
+          var on = draft.addonIds.indexOf(a.id) !== -1;
+          return '<button class="addon-opt" data-action="sheetToggleAddon" data-id="' + a.id + '" data-checked="' + on + '" aria-pressed="' + on + '">' +
+            '<span class="ao-box">' + (on ? icon('check', 12) : icon('plus', 12)) + '</span>' +
+            '<span class="ao-name">' + esc(a.name) + '</span>' +
+            '<span class="ao-price mono">+' + a.price + ' zł</span></button>';
+        }).join('') + '</div>' +
+      '</div>'
     : '';
 
   var body =
     '<div class="sheet-hero">' + itemArt(it, true) + '</div>' +
     (it.tags.length ? '<div style="display:flex;gap:6px;margin-bottom:10px">' + it.tags.map(tagHTML).join('') + '</div>' : '') +
     '<p class="muted" style="font-size:13px">' + esc(it.desc) + '</p>' +
+    sauceHTML +
     addonHTML +
     '<div class="qty-stepper"><span style="font-weight:700">Кількість</span>' +
       '<span class="qs-ctrl">' +
@@ -3850,113 +3719,24 @@ function locationSheet(ov) {
   return sheetWrap('locTitle', loc.addr, body, foot);
 }
 
-function wheelSheet() {
-  var g = _game;
-  var seg = 360 / WHEEL.length;
-  var labels = WHEEL.map(function (w, i) {
-    var a = i * seg + seg / 2;
-    return '<div style="position:absolute;left:50%;top:50%;transform:rotate(' + a + 'deg) translateY(-104px) rotate(' + (-a) + 'deg);' +
-      'font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--on-accent);width:52px;margin-left:-26px;text-align:center">' +
-      esc(w.label) + '</div>';
-  }).join('');
-
-  var stops = WHEEL.map(function (w, i) {
-    var c = (i % 2 === 0) ? 'var(--accent)' : 'var(--accent-press)';
-    return c + ' ' + (i * seg) + 'deg ' + ((i + 1) * seg) + 'deg';
-  }).join(', ');
-
-  var rot = 0;
-  if (g.status === 'spinning') rot = g.rot || (360 * 5 + (360 - (g.targetIndex * seg + seg / 2)));
-
-  var wheel =
-    '<div class="wheel-stage">' +
-      '<p class="muted" style="font-size:12px;text-align:center">Один безкоштовний спін за замовлення. Стрілка вкаже приз.</p>' +
-      '<div class="wheel-outer">' +
-        '<div class="wheel-pointer"></div>' +
-        '<div class="wheel" id="wheelEl" style="background:conic-gradient(' + stops + ');transform:rotate(' + rot + 'deg)">' + labels + '</div>' +
-        '<div class="wheel-hub">' + icon('spark', 34) + '</div>' +
-      '</div>' +
-      '<div id="wheelCta" style="width:100%">' +
-        (g.status === 'spinning'
-          ? '<p class="muted mono" aria-live="polite">Крутимо колесо…</p>'
-          : '<button class="btn btn-primary btn-block" data-action="spinWheel">Крутити</button>') +
-      '</div>' +
-    '</div>';
-
-  if (g.status === 'reveal') {
-    var c = cobraById(g.cobraId);
-    return sheetWrap('wheelTitle', 'Тобі випав шауманчік', scratchHTML(c), '', { mark: true });
-  }
-
-  if (g.status === 'result') {
-    return sheetWrap('wheelTitle', 'Результат', prizeHTML(g), '<button class="btn btn-primary btn-block" data-action="claimPrize">Забрати</button>', { mark: true });
-  }
-
-  return sheetWrap('wheelTitle', 'Колесо Одеси', wheel, '', { mark: true });
-}
-
-function prizeHTML(g) {
-  var p = g.prize;
-  var title = '', sub = '', mark = icon('spark', 90);
-  if (p.kind === 'points') { title = '+' + p.value + ' шауманів'; sub = 'Уже на балансі.'; mark = icon('wallet', 90); }
-  else if (p.kind === 'x2') { title = 'x2 бали'; sub = 'Подвоїли нарахування за це замовлення.'; mark = icon('x2', 90); }
-  else if (p.kind === 'coupon') { title = p.coupon.label; sub = 'Купон додано до гаманця.'; mark = icon('ticket', 90); }
-  else if (p.kind === 'none') { title = 'Пусто'; sub = 'Але ти красунчик. Наступного разу пощастить.'; mark = brandMark(); }
-  else if (p.kind === 'cobra') {
-    var c = cobraById(g.cobraId);
-    title = g.dup ? 'Дубль: ' + c.name : 'Новий: ' + c.name;
-    sub = g.dup ? '+250 шауманів за дубль.' : RARITY[c.rarity].name + ' · додано в колекцію.';
-    return '<div class="prize-reveal"><div class="pr-mark">' + cobraArt(c) + '</div>' +
-      '<div class="pr-title">' + esc(title) + '</div><p class="pr-sub">' + esc(sub) + '</p></div>';
-  }
-  return '<div class="prize-reveal"><div class="pr-mark">' + mark + '</div>' +
-    '<div class="pr-title">' + esc(title) + '</div><p class="pr-sub">' + esc(sub) + '</p></div>';
-}
-
-function scratchHTML(c) {
-  return '<div class="prize-reveal">' +
-    '<div class="scratch" id="scratch">' +
-      '<div class="sc-prize">' + cobraArt(c) + '</div>' +
-      '<canvas id="scratchCv" width="220" height="220" aria-hidden="true"></canvas>' +
-      '<div class="sc-hint">СТИРАЙ ПАЛЬЦЕМ</div>' +
-    '</div>' +
-    '<p class="pr-sub">Зітри жовту плівку, щоб побачити, хто тобі дістався.</p>' +
-    '<button class="btn btn-ghost" data-action="revealScratch" style="margin-top:12px">Показати одразу</button>' +
-  '</div>';
-}
-
 function rewardSheet(ov) {
-  var rw = REWARDS.find(function (x) { return x.id === ov.rewardId; });
+  var rw = rewardById(ov.rewardId);
   if (!rw) return '';
   var can = state.points >= rw.cost;
+  var how = rw.disc
+    ? 'Купон на −' + rw.disc + '% додасться в «Мої купони». Обери його при оформленні.'
+    : 'Купон додасться в «Мої купони». При оформленні додай ' + esc(rw.free.label) +
+      ' у кошик — ми знімемо його вартість.';
   var body = '<div class="prize-reveal" style="padding-top:8px">' +
-    '<div class="pr-mark">' + icon(rw.icon, 90) + '</div>' +
-    '<div class="pr-title" style="font-size:18px">' + esc(rw.name) + '</div>' +
-    '<p class="pr-sub mono">' + nf(rw.cost) + ' шауманів · у тебе ' + nf(state.points) + '</p>' +
-    (can ? '' : '<p class="pr-sub" style="color:var(--crit)">Не вистачає ' + nf(rw.cost - state.points) + ' шауманів</p>') +
-  '</div>';
+      '<div class="pr-mark">' + icon(rw.icon, 90) + '</div>' +
+      '<div class="pr-title" style="font-size:18px">' + esc(rw.name) + '</div>' +
+      '<p class="pr-sub mono">' + nf(rw.cost) + ' шауманів · у тебе ' + nf(state.points) + '</p>' +
+      (can ? '' : '<p class="pr-sub" style="color:var(--crit)">Не вистачає ' + nf(rw.cost - state.points) + ' шауманів</p>') +
+    '</div>' +
+    '<p class="muted" style="font-size:12px;text-align:center;padding:0 8px">' + how + '</p>';
   var foot = '<button class="btn btn-primary btn-block" data-action="redeemReward" data-id="' + rw.id + '" ' +
     (can ? '' : 'aria-disabled="true"') + '>Обміняти за ' + nf(rw.cost) + '</button>';
   return sheetWrap('rwTitle', 'Обмін нагороди', body, foot, { mark: true });
-}
-
-function cobraSheet(ov) {
-  var c = cobraById(ov.cobraId);
-  if (!c) return '';
-  var owned = state.collectibles.indexOf(c.id) !== -1;
-  var dupCount = state.collectibles.filter(function (x) { return x === c.id; }).length;
-  var body =
-    '<div class="sheet-hero" style="height:170px">' + cobraArt(c) + '</div>' +
-    '<div style="display:flex;align-items:center;gap:8px">' +
-      '<span class="cc-rar ' + RARITY[c.rarity].cls + '" style="position:static;width:10px;height:10px"></span>' +
-      '<span class="mono muted" style="font-size:12px;text-transform:uppercase;letter-spacing:0.08em">' + RARITY[c.rarity].name + '</span>' +
-    '</div>' +
-    '<h3 class="h2" style="margin-top:6px">' + esc(c.name) + '</h3>' +
-    '<p class="muted" style="font-size:13px;margin-top:6px">' + (owned ? esc(c.story) : 'Ще не у твоїй колекції. Лови у «Колесі Одеси» після замовлень.') + '</p>';
-  var foot = (owned && dupCount > 1)
-    ? '<button class="btn btn-primary btn-block" data-action="convertDup" data-id="' + c.id + '">Обміняти дубль на 250 шауманів</button>'
-    : (owned ? '<span class="mono muted" style="font-size:12px">У колекції ✓</span>' : '');
-  return sheetWrap('cbTitle', 'Шауманчік', body, foot, { mark: true });
 }
 
 function nameSheet() {
@@ -3975,7 +3755,7 @@ function nameSheet() {
 function resetSheet() {
   var body = '<div class="prize-reveal"><div class="pr-mark" style="color:var(--crit)">' + icon('trash', 90) + '</div>' +
     '<div class="pr-title" style="font-size:18px">Скинути демо?</div>' +
-    '<p class="pr-sub">Бали, купони, колекція шауманчіків та історія повернуться до початкового стану. Дію не можна скасувати.</p></div>';
+    '<p class="pr-sub">Бали, купони та історія повернуться до початкового стану. Дію не можна скасувати.</p></div>';
   var foot = '<div style="display:flex;gap:8px">' +
     '<button class="btn btn-ghost btn-block" data-action="closeOverlay">Скасувати</button>' +
     '<button class="btn btn-primary btn-block" data-action="confirmReset">Скинути</button></div>';
@@ -4000,7 +3780,7 @@ function onboardingHTML() {
     },
     {
       title: 'Шаумани за кожен злотий',
-      text: '1 zł = 1 шауман. Накопичуй і обмінюй на соуси, напої, фрі та навіть Фірмову MAX. А ще лови шауманчіків — 12 персонажів сезону.',
+      text: '1 zł = 3 шаумани. Накопичуй і обмінюй на реальну їжу — напій, сайд, хот-дог, а далі й шаурму. Обмін застосується прямо при оформленні.',
       cta: 'Далі'
     },
     {
@@ -4084,7 +3864,7 @@ function wireHeroDots() {
 function screenLabel() {
   return ({
     menu: 'Меню', map: 'Мапа точок', card: 'Картка лояльності',
-    wallet: 'Шауманчіки', profile: 'Профіль', cart: 'Кошик',
+    wallet: 'Бонуси', profile: 'Профіль', cart: 'Кошик',
     checkout: 'Оформлення замовлення', confirm: 'Замовлення прийнято'
   })[state.nav] || 'SHAUMAN';
 }
@@ -4141,9 +3921,6 @@ function renderOverlay() {
   if (!host) return;
   host.innerHTML = overlayHTML();
   host.setAttribute('aria-hidden', _overlay ? 'false' : 'true');
-  if (_overlay && _overlay.type === 'wheel' && _game.status === 'reveal') {
-    window.requestAnimationFrame(initScratch);
-  }
   if (_overlay && _overlay.type === 'location') {
     wireSheetMap();
   } else if (_sheetMap) {
@@ -4190,7 +3967,7 @@ function focusScreen() {
 
 function openOverlay(ov) {
   _overlayReturn = document.activeElement;
-  if (ov.type === 'item') ov.draft = { qty: 1, addonIds: [] };
+  if (ov.type === 'item') ov.draft = { qty: 1, addonIds: [], sauceIds: [] };
   _overlay = ov;
   _overlayJustOpened = true;
   render();
@@ -4222,48 +3999,6 @@ function toast(msg, kind) {
     window.setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 320);
   }, 2600);
   while (host.children.length > 3) host.removeChild(host.firstChild);
-}
-
-/* ---- скретч-картка (canvas) ---- */
-function initScratch() {
-  var cv = document.getElementById('scratchCv');
-  if (!cv || !cv.getContext) return;
-  var ctx = cv.getContext('2d');
-  if (!ctx) return;
-  ctx.fillStyle = '#f6ce05';
-  ctx.fillRect(0, 0, cv.width, cv.height);
-  ctx.fillStyle = '#141414';
-  ctx.font = 'bold 12px monospace';
-  ctx.textAlign = 'center';
-  ctx.fillText('СТИРАЙ ПАЛЬЦЕМ', cv.width / 2, cv.height / 2);
-
-  var drawing = false, strokes = 0;
-  function toXY(e) {
-    var r = cv.getBoundingClientRect();
-    var cx = e.touches ? e.touches[0].clientX : e.clientX;
-    var cy = e.touches ? e.touches[0].clientY : e.clientY;
-    return { x: (cx - r.left) * cv.width / r.width, y: (cy - r.top) * cv.height / r.height };
-  }
-  function erase(e) {
-    if (!drawing) return;
-    if (e.cancelable) e.preventDefault();
-    var p = toXY(e);
-    ctx.globalCompositeOperation = 'destination-out';
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, 22, 0, Math.PI * 2);
-    ctx.fill();
-    if (++strokes > 40) { cleanup(); actions.revealScratch(); }
-  }
-  function down(e) { drawing = true; erase(e); }
-  function up() { drawing = false; }
-  function cleanup() {
-    cv.removeEventListener('pointerdown', down);
-    cv.removeEventListener('pointermove', erase);
-    window.removeEventListener('pointerup', up);
-  }
-  cv.addEventListener('pointerdown', down);
-  cv.addEventListener('pointermove', erase);
-  window.addEventListener('pointerup', up);
 }
 
 /* ---- onboarding-обробник ---- */
