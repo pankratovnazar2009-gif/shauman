@@ -954,6 +954,94 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 .match-code label{display:block;margin-bottom:6px}
 .scan-video.off{display:none}
 
+
+/* ===== СКРЕТЧ-КАРТКА ===== */
+#scrLayer{position:fixed;inset:0;z-index:200;pointer-events:none}
+#scrLayer:empty{display:none}
+#scrLayer>.scr{pointer-events:auto}
+#scrLayer.out .scr{animation:scrOut .3s ease forwards}
+.scr{position:absolute;inset:0;overflow:hidden;display:flex;align-items:center;justify-content:center;color:#0E0E0D;font-family:var(--f-body);animation:fade .35s ease;
+  background:radial-gradient(120% 80% at 50% 42%,#FFE45A 0%,#FFD000 38%,#FFB300 72%,#F28A00 100%)}
+.scr.is-task{background:radial-gradient(120% 80% at 50% 42%,#FF9A3C 0%,#FF6B2C 40%,#E8402A 75%,#A8201A 100%)}
+.scr-bg{position:absolute;inset:0;pointer-events:none}
+.scr-rays{position:absolute;left:50%;top:44%;width:240vmax;height:240vmax;margin:-120vmax 0 0 -120vmax;
+  background:repeating-conic-gradient(from 0deg,rgba(255,255,255,.26) 0 9deg,rgba(255,255,255,0) 9deg 18deg);animation:spin 60s linear infinite;
+  -webkit-mask:radial-gradient(closest-side,#000 10%,transparent 70%);mask:radial-gradient(closest-side,#000 10%,transparent 70%)}
+.scr.is-task .scr-rays{background:repeating-conic-gradient(from 0deg,rgba(255,226,90,.28) 0 9deg,rgba(255,255,255,0) 9deg 18deg)}
+.scr-dots{position:absolute;inset:0;background:radial-gradient(rgba(14,14,13,.13) 1.4px,transparent 1.6px) 0 0/14px 14px;
+  -webkit-mask:radial-gradient(75% 60% at 50% 45%,transparent 45%,#000 100%);mask:radial-gradient(75% 60% at 50% 45%,transparent 45%,#000 100%)}
+.scr-fl{position:absolute;width:var(--s,110px);filter:drop-shadow(0 14px 18px rgba(90,40,0,.35));animation:scrFloat var(--d,6s) ease-in-out infinite alternate;opacity:.95}
+.scr-fl.f0{--s:150px;left:-38px;top:6%;--r:-18deg;--d:7s}
+.scr-fl.f1{--s:104px;right:-20px;top:4%;--r:16deg;--d:5.5s}
+.scr-fl.f2{--s:78px;right:6%;top:30%;--r:-10deg;--d:6.5s;opacity:.85}
+.scr-fl.f3{--s:120px;left:-30px;bottom:18%;--r:12deg;--d:6s}
+.scr-fl.f4{--s:96px;right:-26px;bottom:24%;--r:-14deg;--d:7.5s}
+.scr-fl.f5{--s:130px;left:18%;bottom:-40px;--r:22deg;--d:6.8s}
+.scr-fl.f6{--s:70px;left:8%;top:34%;--r:8deg;--d:5s;opacity:.8}
+.scr-fl.f7{--s:140px;right:12%;bottom:-48px;--r:-8deg;--d:8s}
+@keyframes scrFloat{from{transform:translateY(0) rotate(var(--r,0deg))}to{transform:translateY(-16px) rotate(calc(var(--r,0deg) + 8deg))}}
+.scr-confetti{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:3}
+.scr-col{position:relative;z-index:2;width:min(360px,calc(100% - 32px));display:flex;flex-direction:column;align-items:center;gap:16px}
+.scr-top{text-align:center}
+.scr-kick{display:inline-block;padding:5px 12px;border-radius:99px;background:#0E0E0D;color:#FFD000;font:800 11px/1.2 var(--f-display);letter-spacing:.08em;text-transform:uppercase}
+.scr.is-task .scr-kick{color:#FF9A3C}
+.scr-h{margin:10px 0 0;font:900 26px/1.08 var(--f-display);letter-spacing:-.01em;text-wrap:balance;text-shadow:0 2px 0 rgba(255,255,255,.35)}
+.scr.is-task .scr-h{color:#fff;text-shadow:0 3px 0 rgba(0,0,0,.18)}
+.scr-ticket{position:relative;width:100%;background:#FFFBEA;border-radius:22px;box-shadow:0 24px 50px -12px rgba(80,30,0,.55);border:4px solid #0E0E0D;
+  animation:scrIn .6s cubic-bezier(.2,1.4,.4,1) both}
+.scr-ticket::before,.scr-ticket::after{content:'';position:absolute;bottom:38px;width:26px;height:26px;border-radius:50%;background:#FFC21A;border:4px solid #0E0E0D;z-index:2}
+.scr-ticket::before{left:-17px;clip-path:inset(0 0 0 50%)} .scr-ticket::after{right:-17px;clip-path:inset(0 50% 0 0)}
+.scr.is-task .scr-ticket::before,.scr.is-task .scr-ticket::after{background:#F25A2C}
+.scr.is-task .scr-ticket{background:#14110E;color:#FFF6DA}
+.scr-ticket.leave{animation:scrLeave .28s ease-in forwards}
+@keyframes scrIn{from{transform:translateY(60px) rotate(-6deg) scale(.85);opacity:0}}
+@keyframes scrLeave{to{transform:translateX(-120%) rotate(-14deg);opacity:0}}
+@keyframes scrOut{to{opacity:0}}
+.scr-band{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;border-radius:17px 17px 0 0;background:#0E0E0D;color:#FFD000;font:900 13px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase}
+.scr-band span:last-child{font-size:10px;letter-spacing:.1em;color:#F2F0EA;opacity:.8}
+.scr.is-task .scr-band{background:linear-gradient(90deg,#FF6B2C,#FFB300);color:#0E0E0D}
+.scr.is-task .scr-band span:last-child{color:#0E0E0D}
+.scr-win{position:relative;margin:14px;height:200px;border-radius:16px;overflow:hidden;background:
+  repeating-linear-gradient(-45deg,rgba(255,208,0,.16) 0 10px,transparent 10px 20px),#FFF4C2}
+.scr.is-task .scr-win{background:repeating-linear-gradient(-45deg,rgba(255,154,60,.14) 0 10px,transparent 10px 20px),#221B14}
+.scr-prize{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;text-align:center;padding:10px}
+.scr-coin{width:44px;height:44px;border-radius:50%;background:#0E0E0D center/70% no-repeat;box-shadow:0 0 0 3px #FFD000,0 6px 14px rgba(0,0,0,.25);margin-bottom:4px}
+.scr-tic{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;background:#FFD000;color:#0E0E0D;box-shadow:0 0 0 3px #0E0E0D,0 0 0 6px #FF9A3C;margin-bottom:6px}
+.scr-lbl{font:800 11px/1 var(--f-display);letter-spacing:.14em;text-transform:uppercase;opacity:.65}
+.scr-ttl{font:800 14px/1.2 var(--f-display);margin-top:4px}
+.scr-big{font:900 64px/1 var(--f-display);letter-spacing:-.03em;color:#0E0E0D;margin-top:4px;text-shadow:3px 3px 0 #FFD000,6px 6px 0 rgba(14,14,13,.12)}
+.scr-big.word{font-size:30px;line-height:1.1}
+.scr.is-task .scr-big{color:#FFD000;text-shadow:3px 3px 0 #E8402A}
+.scr-unit{font:900 16px/1 var(--f-display);text-transform:uppercase;letter-spacing:.06em}
+.scr-sub{font-size:12px;opacity:.65;margin-top:6px}
+.scr-ticket.won .scr-prize>*{animation:scrPop .55s cubic-bezier(.2,1.6,.4,1) both}
+.scr-ticket.won .scr-prize>*:nth-child(2){animation-delay:.05s}
+.scr-ticket.won .scr-prize>*:nth-child(3){animation-delay:.1s}
+.scr-ticket.won .scr-prize>*:nth-child(4){animation-delay:.15s}
+@keyframes scrPop{from{transform:scale(.6)}}
+.scr-foil{position:absolute;inset:0;width:100%;height:100%;touch-action:none;cursor:grab;transition:opacity .45s ease,transform .45s ease;z-index:1}
+.scr-ticket.won .scr-foil{opacity:0;transform:scale(1.08);pointer-events:none}
+.scr-hand{position:absolute;z-index:2;left:50%;top:72%;width:30px;height:30px;margin-left:-15px;border-radius:50%;background:rgba(255,255,255,.85);box-shadow:0 0 0 6px rgba(255,255,255,.35);pointer-events:none;animation:scrHand 2.2s ease-in-out infinite}
+.scr-win.touched .scr-hand,.scr-ticket.won .scr-hand{display:none}
+@keyframes scrHand{0%{transform:translate(-70px,0)}50%{transform:translate(70px,-14px)}100%{transform:translate(-70px,0)}}
+.scr-dust{position:absolute;z-index:2;width:5px;height:5px;border-radius:1px;background:#E9A800;pointer-events:none;animation:scrDust .7s ease-in forwards}
+.scr-dust.holo{background:#C7B8F2}
+@keyframes scrDust{to{transform:translate(var(--dx),60px) rotate(200deg);opacity:0}}
+.scr-perf{margin:0 18px;border-top:2px dashed rgba(14,14,13,.22)}
+.scr.is-task .scr-perf{border-color:rgba(255,246,218,.22)}
+.scr-foot{display:flex;justify-content:space-between;padding:14px 20px 16px;font-size:11px;font-weight:700;opacity:.6;letter-spacing:.06em}
+.scr-live{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);margin:0}
+.scr-acts{width:100%}
+.scr-btn{width:100%;min-height:56px;border-radius:18px;display:flex;align-items:center;justify-content:center;gap:8px;font:900 16px/1 var(--f-display);letter-spacing:.01em;
+  background:#0E0E0D;color:#FFD000;box-shadow:0 6px 0 rgba(0,0,0,.25);transition:transform .12s ease}
+.scr-btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.25)}
+.scr-btn.ghost{background:rgba(14,14,13,.12);color:#0E0E0D;box-shadow:none;min-height:48px;font-size:14px}
+.scr.is-task .scr-btn.ghost{background:rgba(255,255,255,.18);color:#fff}
+.scr-btn:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media (max-height:680px){.scr-win{height:170px}.scr-big{font-size:54px}.scr-h{font-size:22px}.scr-col{gap:12px}}
+@media (prefers-reduced-motion:reduce){.scr-rays,.scr-fl,.scr-hand{animation:none}}
+.reduce-motion .scr-rays,.reduce-motion .scr-fl{animation:none!important}
+
 </style>
 </head>
 <body>
@@ -1612,6 +1700,9 @@ function onStatus(o, prev){
   if(prev===o.status) return;
   if(o.status==='ready') A.pushBanner('Твоє замовлення готове!', `${o.id} чекає на ${POINT[o.pointId].name}. Покажи QR видачі на касі.`, o.id);
   if(o.status==='delivering') A.pushBanner('Кур’єр уже в дорозі', `${o.id} — орієнтовно 20 хв`, o.id);
+  if(o.status==='issued' && o.ptsState==='pending' && o.pts>0 && window.X?.scratch){ issueOrder(o);
+    state.notifs.unshift({at:now(), title:o.format==='delivery'?'Доставлено. Смачного!':'Замовлення видано. Смачного!', body:`${o.id}: +${o.pts} шауманів нараховано`, read:false});
+    save(); X.scratch({id:o.id, pts:o.pts, ref:o.id, sum:o.total}); return; }
   if(o.status==='issued'){ issueOrder(o); A.pushBanner(o.format==='delivery'?'Доставлено. Смачного!':'Замовлення видано. Смачного!', `${o.id}: +${o.pts} шауманів нараховано`, o.id); }
   if(o.status==='refunded'||o.status==='cancelled'){ revertOrder(o); A.pushBanner(o.status==='refunded'?'Повернення оформлено':'Замовлення скасовано', `${o.id}: ${fmt(o.total)} повернуться на ${o.pay.label} протягом 1–3 днів.`, o.id); }
 }
@@ -1629,6 +1720,8 @@ function reconcile(){
   if(me) for(const c of Object.values(Shared.data.credits)){ if(c.uid!==me || state.creditsApplied.includes(c.id)) continue;
     state.creditsApplied.push(c.id); state.points=Math.max(0, state.points+c.pts); if(c.pts>0 && c.amount) state.spent+=c.amount;
     state.ptsLog.unshift({at:c.at||now(), delta:c.pts, label:c.label||('Чек на касі '+(c.check||''))});
+    if(c.pts>0 && c.amount && window.X?.scratch){ state.notifs.unshift({at:now(), title:'Бали нараховано', body:`+${c.pts} шауманів за чек ${c.check||''} (${fmt(c.amount)})`, read:false});
+      X.scratch({id:c.id, pts:c.pts, ref:'Чек '+(c.check||''), sum:c.amount}); changed=true; continue; }
     A.pushBanner(c.pts>=0?'Бали нараховано':'Бали списано', c.amount?`${c.pts>0?'+':''}${c.pts} шауманів за чек ${c.check||''} (${fmt(c.amount)})`:`${c.pts>0?'+':''}${c.pts} шауманів · ${c.label||''}`); changed=true; }
   if(changed) save();
   return changed;
@@ -2283,8 +2376,18 @@ function grant(r, label) {
 }
 
 /* ---------------- ЗАВДАННЯ ---------------- */
-const goodOrders = () => state.orders.filter(o => !['cancelled', 'refunded'].includes(o.status));
+// EXCL — тимчасово «не бачимо» один чек, щоб порахувати, які завдання закрила саме ця покупка
+let EXCL = null;
+const goodOrders = () => state.orders.filter(o => o.status === 'issued' && o.id !== EXCL);
+const myCredits = () => Object.values(Shared.data.credits || {}).filter(c => c.uid === state.user?.id && c.pts > 0 && c.amount > 0 && state.creditsApplied.includes(c.id) && c.id !== EXCL);
+const buysSince = t => goodOrders().filter(o => o.at >= t).length + myCredits().filter(c => (c.at || 0) >= t).length;
 const TASKS = [
+  { id: 't_qr1', ic: 'scan', title: 'Покажи QR на касі', desc: 'Відскануй свою картку SHAUMAN, коли купуєш на касі', goal: 1, reward: { pts: 30 }, rtext: '+30',
+    prog: () => myCredits().length ? 1 : 0 },
+  { id: 't_visit3', ic: 'repeat', title: 'Завсідник', desc: '3 покупки за місяць — у застосунку або на касі з QR', goal: 3, reward: { pts: 120 }, rtext: '+120',
+    prog: () => buysSince(monthStart()) },
+  { id: 't_big', ic: 'bag', title: 'Великий апетит', desc: 'Один чек від 60 zł', goal: 1, reward: { coupon: { title: 'Напій 0,25 л', free: { cat: 'drinks' } } }, rtext: 'Напій у подарунок',
+    prog: () => goodOrders().some(o => o.total >= 60) || myCredits().some(c => c.amount >= 60) ? 1 : 0 },
   { id: 't_shaw5', ic: 'flame', title: '5 шаурм за місяць', desc: 'Замов будь-які 5 шаурм цього місяця', goal: 5, reward: { coupon: { title: 'Картопля фрі', free: { id: 'fr_fry' } } }, rtext: 'Фрі в подарунок',
     prog: () => goodOrders().filter(o => o.at >= monthStart()).reduce((s, o) => s + o.lines.filter(l => ['shawarma', 'shauchak'].includes(ITEM[l.id]?.cat)).reduce((a, l) => a + l.qty, 0), 0) },
   { id: 't_arab', ic: 'star', title: 'Спробуй новинку', desc: 'Замов Arabska shawarma', goal: 1, reward: { pts: 100 }, rtext: '+100',
@@ -2292,7 +2395,7 @@ const TASKS = [
   { id: 't_combo', ic: 'bag', title: 'Комбо-день', desc: 'Візьми будь-яке комбо', goal: 1, reward: { pts: 50 }, rtext: '+50',
     prog: () => goodOrders().some(o => o.lines.some(l => ITEM[l.id]?.kind === 'combo' || l.combo)) ? 1 : 0 },
   { id: 't_points3', ic: 'pin', title: 'Мандрівник', desc: 'Замов у 3 різних точках SHAUMAN', goal: 3, reward: { pts: 150 }, rtext: '+150',
-    prog: () => new Set(goodOrders().map(o => o.pointId)).size },
+    prog: () => new Set([...goodOrders().map(o => o.pointId), ...myCredits().map(c => c.pointId)].filter(Boolean)).size },
   { id: 't_friend', ic: 'gift', title: 'Приведи друга', desc: 'Друг вводить твій код при реєстрації і робить перше замовлення', goal: 1, reward: { pts: 150 }, rtext: '+150 тобі і другу', kind: 'share',
     prog: () => state.tasks.t_friend_done ? 1 : 0 },
   { id: 't_review', ic: 'star', title: 'Оціни замовлення', desc: 'Постав оцінку останньому замовленню', goal: 1, reward: { pts: 20 }, rtext: '+20', kind: 'review',
@@ -2473,6 +2576,119 @@ X.addPass = k => { state.passes = state.passes || {}; state.passes[k] = true; sa
 
 /* ---------------- МОВИ ---------------- */
 EXTRA_SHEETS.lang = () => ({ title: 'Мова', body: [['ua', 'Українська'], ['pl', 'Polski'], ['en', 'English']].map(([k, n]) => `<button class="opt" role="radio" aria-checked="${(state.settings.lang || 'ua') === k}" onclick="A.setLang('${k}')"><span class="radio"></span><span class="grow"><b>${n}</b></span></button>`).join('') + '<p class="xs faint" style="margin-top:10px">Назви страв лишаються як у меню закладу.</p>' });
+
+
+/* ---------------- СКРЕТЧ-КАРТКА: приз після покупки ----------------
+   Чек на касі (QR) або видане замовлення → зітри фольгу й побач, скільки шауманів отримав.
+   Якщо ця покупка закрила завдання — наступна картка з призом за нього (нагорода зараховується одразу, картка — це «розпаковка»). */
+const SCR_T = {
+  ua: { head: 'Зітри й дізнайся свій приз', head2: 'А це ще не все!', got: 'Ти отримав', pts: 'шауманів', bal: 'Баланс', task: 'Завдання виконано', scratch: 'Зітри', hint: 'пальцем або мишкою', open: 'Відкрити одразу', next: 'Ще один приз', take: 'Забрати', coupon: 'Вже в «Моїх купонах»', added: 'Зараховано на баланс', lucky: 'Щасливий чек', bonus: 'Бонус-приз' },
+  pl: { head: 'Zdrap i zobacz swoją nagrodę', head2: 'To jeszcze nie wszystko!', got: 'Otrzymujesz', pts: 'szaumanów', bal: 'Saldo', task: 'Zadanie wykonane', scratch: 'Zdrap', hint: 'palcem lub myszką', open: 'Odkryj od razu', next: 'Kolejna nagroda', take: 'Odbierz', coupon: 'Już w «Moich kuponach»', added: 'Dodano do salda', lucky: 'Szczęśliwy paragon', bonus: 'Bonus' },
+  en: { head: 'Scratch to see your prize', head2: 'That’s not all!', got: 'You got', pts: 'points', bal: 'Balance', task: 'Task complete', scratch: 'Scratch', hint: 'with finger or mouse', open: 'Reveal now', next: 'One more prize', take: 'Collect', coupon: 'Already in “My coupons”', added: 'Added to balance', lucky: 'Lucky receipt', bonus: 'Bonus prize' },
+};
+const st_ = k => (SCR_T[state.settings?.lang] || SCR_T.ua)[k];
+const SCR = { q: [], cur: null, done: false, moves: 0, step: 0 };
+const reduceMo = () => document.documentElement.classList.contains('reduce-motion') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function readyTasks() { return new Set(allTasks().filter(t => state.tasks[t.id] !== 'claimed' && t.prog() >= t.goal).map(t => t.id)); }
+/* які завдання закрила саме ця покупка (id чека або замовлення) — нагороди зараховуємо одразу */
+X.prizesFor = id => { gstate(); const after = readyTasks(); EXCL = id; let before; try { before = readyTasks(); } finally { EXCL = null; }
+  return allTasks().filter(t => after.has(t.id) && !before.has(t.id)).map(t => { state.tasks[t.id] = 'claimed'; grant(t.reward, 'Завдання: ' + t.title); return t; }); };
+/* викликає app.js: {pts, ref:'Чек K-…', sum, id} */
+X.scratch = p => { const tasks = X.prizesFor(p.id);
+  SCR.q.push({ kind: 'pts', ...p }, ...tasks.map(t => ({ kind: 'task', t })));
+  if (!SCR.cur) { SCR.step = 0; scrNext(); } };
+
+const scrLayer = () => { let el = document.getElementById('scrLayer'); if (!el) { el = document.createElement('div'); el.id = 'scrLayer'; document.body.appendChild(el); } return el; };
+const FLOAT = ['shaw_klas', 'frytki', 'cola', 'hd_bulka', 'cebulowe', 'shaw_grek', 'sok_jabl', 'combo_klas'];
+function scrNext() {
+  const c = SCR.q.shift(); SCR.cur = c || null; SCR.done = false; SCR.moves = 0;
+  const L = scrLayer();
+  if (!c) { L.classList.add('out'); setTimeout(() => { if (!SCR.cur) L.innerHTML = ''; L.classList.remove('out'); }, 320); render(); return; }
+  const task = c.kind === 'task'; SCR.step++; const total = SCR.step + SCR.q.length;
+  const prize = task
+    ? `<span class="scr-tic">${icon(c.t.ic, 'lg')}</span><span class="scr-lbl">${st_('task')}</span><b class="scr-ttl">${esc(c.t.title)}</b>
+       <b class="scr-big ${c.t.reward.pts ? '' : 'word'}">${esc(c.t.rtext)}</b><span class="scr-sub">${c.t.reward.coupon ? st_('coupon') : st_('added')}</span>`
+    : `<span class="scr-coin" style="background-image:url(${IMG.logo})"></span><span class="scr-lbl">${st_('got')}</span>
+       <b class="scr-big"><span id="scrNum" data-to="${c.pts}">+${nf(c.pts)}</span></b><span class="scr-unit">${st_('pts')}</span><span class="scr-sub">${st_('bal')}: ${nf(state.points)}</span>`;
+  L.innerHTML = `<div class="scr ${task ? 'is-task' : ''}" role="dialog" aria-modal="true" aria-labelledby="scrHead">
+    <div class="scr-bg" aria-hidden="true"><div class="scr-rays"></div><div class="scr-dots"></div>
+      ${FLOAT.map((k, i) => `<img class="scr-fl f${i}" src="${imgSrc(k)}" alt="">`).join('')}</div>
+    <canvas class="scr-confetti" id="scrConf" aria-hidden="true"></canvas>
+    <div class="scr-col">
+      <div class="scr-top"><span class="scr-kick">${task ? st_('bonus') : esc(c.ref || '')}${!task && c.sum ? ' · ' + fmt(c.sum) : ''}</span>
+        <h2 class="scr-h" id="scrHead">${task ? st_('head2') : st_('head')}</h2></div>
+      <div class="scr-ticket" id="scrTicket">
+        <div class="scr-band"><span>SHAUMAN</span><span>${task ? '★ ' + st_('bonus') : st_('lucky')}</span></div>
+        <div class="scr-win"><div class="scr-prize" id="scrPrize" aria-hidden="true">${prize}</div>
+          <canvas class="scr-foil" id="scrFoil" role="img" aria-label="${st_('scratch')}"></canvas>
+          <span class="scr-hand" aria-hidden="true"></span></div>
+        <div class="scr-perf" aria-hidden="true"></div>
+        <div class="scr-foot"><span class="mono">${total > 1 ? SCR.step + ' / ' + total : '№ ' + String(myCard()).slice(-4)}</span><span>${new Date().toLocaleDateString('uk-UA')}</span></div>
+      </div>
+      <p class="scr-live" id="scrLive" role="status"></p>
+      <div class="scr-acts"><button class="scr-btn ghost" id="scrBtn" onclick="X.scrAct()">${st_('open')}</button></div>
+    </div></div>`;
+  requestAnimationFrame(() => { paintFoil(task); document.getElementById('scrBtn')?.focus({ preventScroll: true }); });
+}
+function star(g, x, y, s) { g.beginPath(); g.moveTo(x, y - s * 2); g.lineTo(x + s * .5, y - s * .5); g.lineTo(x + s * 2, y); g.lineTo(x + s * .5, y + s * .5); g.lineTo(x, y + s * 2); g.lineTo(x - s * .5, y + s * .5); g.lineTo(x - s * 2, y); g.lineTo(x - s * .5, y - s * .5); g.fill(); }
+function paintFoil(holo) {
+  const cv = document.getElementById('scrFoil'); if (!cv) return; const r = cv.getBoundingClientRect(), d = Math.min(2, devicePixelRatio || 1);
+  cv.width = Math.round(r.width * d); cv.height = Math.round(r.height * d); const g = cv.getContext('2d', { willReadFrequently: true }); g.scale(d, d);
+  const w = r.width, h = r.height, gr = g.createLinearGradient(0, 0, w, h);
+  (holo ? [['#C7CED9', 0], ['#F4C3E6', .22], ['#BDE6F6', .45], ['#F8F1B4', .68], ['#CBB8F2', .85], ['#C7CED9', 1]]
+        : [['#E9A800', 0], ['#FFE36A', .22], ['#F2B400', .45], ['#FFF0A0', .62], ['#D99400', .85], ['#FFD000', 1]]).forEach(([c, s]) => gr.addColorStop(s, c));
+  g.fillStyle = gr; g.fillRect(0, 0, w, h);
+  g.save(); g.globalAlpha = .16; g.strokeStyle = '#fff'; g.lineWidth = 7; for (let x = -h; x < w + h; x += 26) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x + h, h); g.stroke(); } g.restore();
+  g.save(); g.translate(w / 2, h / 2); g.rotate(-.32); g.font = '800 10px Montserrat, system-ui, sans-serif'; g.fillStyle = holo ? 'rgba(70,60,120,.16)' : 'rgba(110,65,0,.2)';
+  for (let y = -h, row = 0; y < h; y += 20, row++) for (let x = -w; x < w; x += 86) g.fillText('SHAUMAN ★', x + (row % 2 ? 43 : 0), y); g.restore();
+  g.fillStyle = 'rgba(255,255,255,.85)'; for (let i = 0; i < 26; i++) star(g, Math.random() * w, Math.random() * h, 1 + Math.random() * 2.4);
+  g.fillStyle = 'rgba(14,14,13,.86)'; g.beginPath(); g.roundRect ? g.roundRect(w / 2 - 74, h / 2 - 26, 148, 52, 26) : g.rect(w / 2 - 74, h / 2 - 26, 148, 52); g.fill();
+  g.fillStyle = holo ? '#F4C3E6' : '#FFD000'; g.textAlign = 'center'; g.font = '900 17px Montserrat, system-ui, sans-serif'; g.fillText(st_('scratch').toUpperCase(), w / 2, h / 2 + 1);
+  g.fillStyle = 'rgba(255,255,255,.7)'; g.font = '600 10px Manrope, system-ui, sans-serif'; g.fillText(st_('hint'), w / 2, h / 2 + 16);
+  g.globalCompositeOperation = 'destination-out'; g.lineCap = g.lineJoin = 'round'; g.lineWidth = 44;
+  let last = null;
+  const pos = e => { const b = cv.getBoundingClientRect(); return [e.clientX - b.left, e.clientY - b.top]; };
+  const dust = (x, y) => { if (reduceMo() || Math.random() > .5) return; const s = document.createElement('i'); s.className = 'scr-dust' + (holo ? ' holo' : ''); s.style.left = x + 'px'; s.style.top = y + 'px'; s.style.setProperty('--dx', (Math.random() * 60 - 30) + 'px'); cv.parentNode.appendChild(s); setTimeout(() => s.remove(), 700); };
+  cv.onpointerdown = e => { if (SCR.done) return; cv.setPointerCapture?.(e.pointerId); last = pos(e); g.beginPath(); g.arc(last[0], last[1], 22, 0, 7); g.fill(); cv.parentNode.classList.add('touched'); scrSound(); };
+  cv.onpointermove = e => { if (!last || SCR.done) return; const p = pos(e); g.beginPath(); g.moveTo(last[0], last[1]); g.lineTo(p[0], p[1]); g.stroke(); last = p; dust(p[0], p[1]);
+    if (++SCR.moves % 8 === 0 && cleared(cv, g) > .5) X.scrReveal(); };
+  cv.onpointerup = cv.onpointercancel = () => { last = null; if (!SCR.done && cleared(cv, g) > .5) X.scrReveal(); };
+}
+function cleared(cv, g) { const d = g.getImageData(0, 0, cv.width, cv.height).data; let n = 0, z = 0; for (let i = 3; i < d.length; i += 4 * 24) { n++; if (d[i] < 40) z++; } return z / n; }
+let _ac = null;
+function scrSound(win) { try { _ac = _ac || new (window.AudioContext || window.webkitAudioContext)(); const t = _ac.currentTime;
+  (win ? [784, 988, 1319, 1568] : [520]).forEach((f, i) => { const o = _ac.createOscillator(), v = _ac.createGain(); o.type = win ? 'triangle' : 'sine'; o.frequency.value = f;
+    v.gain.setValueAtTime(0, t + i * .09); v.gain.linearRampToValueAtTime(win ? .08 : .015, t + i * .09 + .01); v.gain.exponentialRampToValueAtTime(.0001, t + i * .09 + (win ? .35 : .06));
+    o.connect(v); v.connect(_ac.destination); o.start(t + i * .09); o.stop(t + i * .09 + .4); }); } catch {} }
+X.scrReveal = () => {
+  if (SCR.done || !SCR.cur) return; SCR.done = true; const c = SCR.cur;
+  document.getElementById('scrTicket')?.classList.add('won'); document.getElementById('scrPrize')?.removeAttribute('aria-hidden');
+  scrSound(true); try { navigator.vibrate?.([25, 40, 70]); } catch {}
+  const n = document.getElementById('scrNum');
+  if (n && !reduceMo()) { const to = +n.dataset.to, t0 = performance.now(); const step = ts => { const k = Math.min(1, (ts - t0) / 900); n.textContent = '+' + nf(Math.round(to * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(step); }; requestAnimationFrame(step); }
+  confetti(c.kind === 'task');
+  const live = document.getElementById('scrLive'); if (live) live.textContent = c.kind === 'task' ? `${st_('task')}: ${c.t.title} — ${c.t.rtext}` : `+${c.pts} ${st_('pts')}`;
+  const b = document.getElementById('scrBtn'); if (b) { b.className = 'scr-btn'; b.innerHTML = SCR.q.length ? `${icon('gift', 'sm')}${st_('next')}` : `${icon('check', 'sm')}${st_('take')}`; b.focus({ preventScroll: true }); }
+};
+X.scrAct = () => { if (!SCR.done) return X.scrReveal(); const t = document.getElementById('scrTicket');
+  if (t && !reduceMo()) { t.classList.add('leave'); setTimeout(scrNext, 280); } else scrNext(); };
+document.addEventListener('keydown', e => { if (SCR.cur && e.key === 'Escape') { e.preventDefault(); e.stopImmediatePropagation(); X.scrAct(); } }, true);
+function confetti(holo) {
+  const cv = document.getElementById('scrConf'); if (!cv) return; const d = Math.min(2, devicePixelRatio || 1), W = cv.clientWidth, H = cv.clientHeight; cv.width = W * d; cv.height = H * d;
+  const g = cv.getContext('2d'); g.scale(d, d); if (reduceMo()) return;
+  const cols = holo ? ['#FF5FA2', '#7BD3F7', '#FFE36A', '#B79CFF', '#0E0E0D', '#fff'] : ['#FFD000', '#0E0E0D', '#FF8A00', '#fff', '#FFB700', '#E8402A'];
+  const tk = document.getElementById('scrTicket')?.getBoundingClientRect(), cb = cv.getBoundingClientRect();
+  const ox = tk ? tk.left - cb.left + tk.width / 2 : W / 2, oy = tk ? tk.top - cb.top + tk.height / 2 : H / 2;
+  const P = Array.from({ length: 140 }, () => { const a = Math.random() * Math.PI * 2, v = 5 + Math.random() * 9;
+    return { x: ox, y: oy, vx: Math.cos(a) * v, vy: Math.sin(a) * v - 6, s: 5 + Math.random() * 7, r: Math.random() * 6, vr: Math.random() * .3 - .15, c: cols[Math.random() * cols.length | 0], k: Math.random() < .3 }; });
+  const t0 = performance.now();
+  const f = ts => { g.clearRect(0, 0, W, H); const age = ts - t0;
+    for (const p of P) { p.vy += .32; p.vx *= .985; p.x += p.vx; p.y += p.vy; p.r += p.vr; g.save(); g.translate(p.x, p.y); g.rotate(p.r); g.fillStyle = p.c; g.globalAlpha = Math.max(0, 1 - age / 2600);
+      if (p.k) { g.beginPath(); g.arc(0, 0, p.s / 2.4, 0, 7); g.fill(); } else g.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); g.restore(); }
+    if (age < 2600 && cv.isConnected) requestAnimationFrame(f); else g.clearRect(0, 0, W, H); };
+  requestAnimationFrame(f);
+}
 
 </script>
 <script>
