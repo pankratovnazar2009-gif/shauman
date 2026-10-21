@@ -1489,7 +1489,9 @@ const subtotal = () => state.cart.reduce((s,l)=>s+lineUnit(l)*l.qty,0);
 const tierOf = spent => [...TIERS].reverse().find(t=>spent>=t.from) || TIERS[0];
 const nextTier = spent => TIERS.find(t=>t.from>spent);
 const validCoupons = () => { state.coupons.forEach(c=>{ if(c.closeOfDay) c.until=closeAt(state.pointId); }); return state.coupons.filter(c=>!c.used && (!c.until || c.until>now())); };
-const activeCoupon = () => validCoupons().find(c=>c.id===state.couponId) || null;
+// купон застосовується сам: вибраний вручну, інакше — найвигідніший, що підходить до кошика ('none' — клієнт вимкнув купони)
+const activeCoupon = () => { const v=validCoupons(); const sel=v.find(c=>c.id===state.couponId); if(sel && couponValue(sel)>0) return sel; if(state.couponId==='none') return null;
+  let best=null, bv=0; for(const c of v){ const x=couponValue(c); if(x>bv){ bv=x; best=c; } } return best; };
 function couponValue(c){
   if(!c) return 0; const sub = subtotal();
   if(c.free){
@@ -1604,7 +1606,7 @@ const A = {
     requestAnimationFrame(()=>document.getElementById('pt-'+pid)?.scrollIntoView({block:'nearest', behavior:'smooth'})); },
   setWhen(v){ state.when=v; save(); render(); },
   setPay(m){ state.payMethod=m; save(); render(); },
-  setCoupon(id){ state.couponId = state.couponId===id ? null : id; save(); render(); },
+  setCoupon(id){ state.couponId = activeCoupon()?.id===id ? 'none' : id; save(); render(); },
   applyPromo(e){ e?.preventDefault(); const code=($('#promo')?.value||'').trim().toUpperCase(); if(!code) return;
     const p = Shared.data.promos.find(x=>x.code===code);
     if(!p){ A.toast('Промокод не знайдено'); return; }
@@ -1617,6 +1619,7 @@ const A = {
     const pt = POINT[state.pointId];
     if(OPS().paused[pt.id]){ A.toast('Точка зараз не приймає замовлення — обери іншу'); return; }
     if(state.format==='delivery'){ const a=($('#addr')?.value||state.address).trim(); state.address=a; if(a.length<5){ A.toast('Вкажи адресу доставки'); $('#addr')?.focus(); return; } }
+    if(total()===0){ state.payMethod=state.payMethod||'free'; return A.paySuccess(); }
     const m = state.payMethod;
     if(!m){ A.toast('Обери спосіб оплати'); document.getElementById('paylist')?.scrollIntoView({block:'center'}); return; }
     if(m==='blik'){ ui.pay={phase:'blik', code:'', err:''}; render(); setTimeout(()=>$('#blik')?.focus(),60); return; }
@@ -1642,8 +1645,8 @@ const A = {
   cardDefault(id){ state.cards.forEach(c=>c.def=c.id===id); state.payMethod='card:'+id; save(); render(); A.toast('Основна картка оновлена'); },
   cardDelete(id){ if(!confirm('Видалити картку?')) return; state.cards=state.cards.filter(c=>c.id!==id); if(state.payMethod==='card:'+id) state.payMethod=null; save(); ui.sheet={type:'cards'}; render(); A.toast('Картку видалено'); },
   paySuccess(){
-    const pt=POINT[state.pointId]; const c=activeCoupon(); const disc=couponValue(c); const sub=subtotal(); const tot=total(); const m=state.payMethod;
-    const label = m==='apple'?'Apple Pay':m==='google'?'Google Pay':m==='blik'?'BLIK': m?.startsWith('card:') ? (()=>{const cd=state.cards.find(x=>'card:'+x.id===m); return cd?`${cd.brand} •••• ${cd.last4}`:'Картка';})() : 'Картка';
+    const pt=POINT[state.pointId]; const c=activeCoupon(); const disc=couponValue(c); const sub=subtotal(); const tot=total(); const m=tot===0?'free':state.payMethod;
+    const label = m==='free'?'Купон (0 zł)':m==='apple'?'Apple Pay':m==='google'?'Google Pay':m==='blik'?'BLIK': m?.startsWith('card:') ? (()=>{const cd=state.cards.find(x=>'card:'+x.id===m); return cd?`${cd.brand} •••• ${cd.last4}`:'Картка';})() : 'Картка';
     const id = 'SH-'+String(now()).slice(-5);
     const order = {id, at:now(), pointId:pt.id, format:state.format, address:state.format==='delivery'?state.address:'', when:state.when,
       lines: state.cart.map(l=>({id:l.id, name:ITEM[l.id].name, qty:l.qty, unit:lineUnit(l), rm:[...l.rm], sauce:l.sauce, add:[...l.add], combo:l.combo, cside:l.cside||null, cdrink:l.cdrink||null})),
@@ -2055,7 +2058,7 @@ function checkoutPage(){
     </div></section>
     <section class="pad sec"><h2 class="h3" style="margin-bottom:10px">Купони та промокоди</h2>
       ${coupons.length?coupons.map(c=>{ const v=couponValue(c);
-        return `<button class="opt" role="radio" aria-checked="${state.couponId===c.id}" onclick="A.setCoupon('${c.id}')"><span class="radio"></span><span class="grow"><b class="small">${esc(c.title)}</b><br><span class="xs muted">${v>0?'−'+fmt(v):(c.free?`додай «${esc(c.title)}» у кошик`:'не підходить до кошика')}${c.until?` · до ${dateStr(c.until)} ${timeStr(c.until)}`:''}</span></span></button>`; }).join(''):'<p class="small muted">Поки немає купонів. Обміняй шаумани на нагороду в «Бонусах».</p>'}
+        return `<button class="opt" role="radio" aria-checked="${activeCoupon()?.id===c.id}" onclick="A.setCoupon('${c.id}')"><span class="radio"></span><span class="grow"><b class="small">${esc(c.title)}</b><br><span class="xs muted">${v>0?'−'+fmt(v):(c.free?`додай «${esc(c.title)}» у кошик`:'не підходить до кошика')}${c.until?` · до ${dateStr(c.until)} ${timeStr(c.until)}`:''}</span></span></button>`; }).join(''):'<p class="small muted">Поки немає купонів. Обміняй шаумани на нагороду в «Бонусах».</p>'}
       <form class="row" style="margin-top:8px" onsubmit="A.applyPromo(event)"><label for="promo" class="sr-only">Промокод</label><input id="promo" class="input grow" placeholder="Промокод (напр. ODESA)" autocapitalize="characters"><button class="btn btn-ghost btn-sm" style="min-height:52px">Застосувати</button></form>
     </section>
     <section class="card pad-card inset sec">
@@ -2067,7 +2070,7 @@ function checkoutPage(){
     </section>
     <p class="pad xs faint" style="margin-top:12px">Натискаючи «Сплатити», ти погоджуєшся з <button class="link" style="min-height:0;font-size:12px" onclick="A.sheet({type:'doc',doc:'refund'})">правилами повернень</button>.</p>
     </div>
-    <div class="page-foot">${state.payMethod==='apple'?`<button class="btn btn-dark btn-block" onclick="A.pay()" ${paused?'disabled':''}>Сплатити з  Pay · ${fmt(total())}</button>`:
+    <div class="page-foot">${total()===0?`<button class="btn btn-primary btn-block" onclick="A.pay()" ${paused?'disabled':''}>${icon('gift','sm')}Замовити за купоном · 0 zł</button>`:state.payMethod==='apple'?`<button class="btn btn-dark btn-block" onclick="A.pay()" ${paused?'disabled':''}>Сплатити з  Pay · ${fmt(total())}</button>`:
       `<button class="btn btn-primary btn-block" onclick="A.pay()" ${paused?'disabled':''}>Сплатити · ${fmt(total())}</button>`}</div>
   </div>`;
 }
@@ -2699,7 +2702,7 @@ function confetti(holo) {
 const I18N = (() => {
   // [pl, en]
   const D = {
-    'Головна': ['Start', 'Home'], 'Меню': ['Menu', 'Menu'], 'Замовлення': ['Zamówienia', 'Orders'], 'Бонуси': ['Bonusy', 'Rewards'],
+    'Головна': ['Start', 'Home'], 'Замовити за купоном · 0 zł': ['Zamów z kuponem · 0 zł', 'Order with coupon · 0 zł'], 'Меню': ['Menu', 'Menu'], 'Замовлення': ['Zamówienia', 'Orders'], 'Бонуси': ['Bonusy', 'Rewards'],
     'Смак Одеси в серці Польщі': ['Smak Odessy w sercu Polski', 'Taste of Odesa in the heart of Poland'], 'Шукай шаурму, фрі, напої…': ['Szukaj shawarmy, frytek, napojów…', 'Search shawarma, fries, drinks…'],
     'Шаурма, сир, фрі…': ['Shawarma, ser, frytki…', 'Shawarma, cheese, fries…'], 'Популярне': ['Popularne', 'Popular'], 'Усе меню': ['Całe menu', 'Full menu'],
     'Минулого разу': ['Ostatnio', 'Last time'], 'Повторити минуле замовлення': ['Powtórz ostatnie zamówienie', 'Repeat last order'],
