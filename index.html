@@ -2260,6 +2260,9 @@ function render(){
 
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(ui.pay&&['blik','card','fail'].includes(ui.pay.phase)) A.payCancel(); else if(ui.sheet) A.closeSheet(); else if(ui.page) A.close(); } });
 function startClient(){
+  // прибираємо дані старої версії застосунку (v1) з браузерів, де вона відкривалась
+  try{ Object.keys(localStorage).filter(k=>k.startsWith('shauman.demo')).forEach(k=>localStorage.removeItem(k)); }catch{}
+  try{ caches?.keys().then(ks=>ks.filter(k=>/^shauman-v[1-8]$/.test(k)).forEach(k=>caches.delete(k))); }catch{}
   Shared.on(()=>{ reconcile(); render(); });
   render(); setInterval(tick, 1000);
 }
