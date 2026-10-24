@@ -1502,9 +1502,11 @@ function qrVerify(text) {
 }
 const matchSig = id => qrHash(id + '|match-secret').toString(36);
 const matchPayload = id => `SHM-MATCH.${id}.${matchSig(id)}`;
-function matchParse(text) { const m = /^SHM-MATCH\.([A-Za-z0-9_-]+)\.([a-z0-9]+)$/.exec(String(text || '').trim()); return m && matchSig(m[1]) === m[2] ? m[1] : null; }
+function matchParse(text) { let t = String(text || '').trim(); try { t = decodeURIComponent(t); } catch {}
+  const m = /SHM-MATCH\.([A-Za-z0-9_-]+)\.([a-z0-9]+)/.exec(t); return m && matchSig(m[1]) === m[2] ? m[1] : null; }
+const matchLink = id => (window.SHAUMAN_CFG?.clientUrl || 'https://shauman-exaa.vercel.app') + '/?m=' + matchPayload(id);
 const matchList = () => (typeof Shared !== 'undefined' && Shared.data.ops.matches?.length ? Shared.data.ops.matches : DEFAULT_MATCHES);
-const matchActive = m => Date.now() > m.at - 6 * 3600e3 && Date.now() < m.at + 6 * 3600e3;
+const matchActive = m => new Date(m.at).toDateString() === new Date().toDateString() || (Date.now() > m.at - 6 * 3600e3 && Date.now() < m.at + 6 * 3600e3);
 function pickupParse(text) { const m = /^SHM-PICKUP\.([A-Za-z0-9-]+)\.(\d{4})$/.exec(String(text || '').trim()); return m ? { id: m[1], code: m[2] } : null; }
 /* Режим застосунку: клієнт або працівник (одне посилання — одна спільна база) */
 const APP_MODE = (() => { if (window.BUILD === 'admin') return 'staff'; if (window.BUILD === 'client') return 'client'; try { if (location.hash === '#staff') return 'staff'; if (location.hash === '#client') return 'client';
@@ -2514,7 +2516,8 @@ function render(){
   const keep={tab:ui.tab, s:sc?.scrollTop||0, pk:JSON.stringify(ui.page&&{t:ui.page.type,id:ui.page.id}), pt:ui.page?.type+'|'+(ui.page?.id||''), p:ps?.scrollTop||0, sk:(ui.sheet?.type||'')+(ui.pay?'pay':''), b:sb?.scrollTop||0, bar:!!(state.user&&cartbarHTML()), toast:ui.toast, push:ui.push?.title};
   const prev=render._k||{};
   const active=document.activeElement?.id;
-  if(!state.user){ app.innerHTML = authView(); render._k=keep; window.afterRender?.(); return; }
+  if(!state.user){ app.innerHTML = authView(); render._k=keep; window.afterRender?.(); if(_pendingMatch && !render._mt){ render._mt=1; setTimeout(()=>A.toast('Увійди — і відмітка на матчі зарахується'),600); } return; }
+  if(_pendingMatch && window.X?.checkIn){ const mid=_pendingMatch; _pendingMatch=null; setTimeout(()=>X.checkIn(mid,'NFC'),500); }
   const view = ({home:homeView, menu:menuView, orders:ordersView, bonus:bonusView, profile:profileView})[ui.tab]();
   const hasBar = !!cartbarHTML();
   app.innerHTML = `<main id="screen" onscroll="menuSpy()" class="${hasBar?'':'no-cartbar'}" ${ui.page?'aria-hidden="true"':''}>${view}</main>
@@ -2548,7 +2551,9 @@ function backStep(){
   if(ui.tab!=='home'){ A.tab('home'); return true; }
   return false;
 }
+let _pendingMatch = null;
 function startClient(){
+  try{ const q=new URLSearchParams(location.search).get('m'); if(q){ _pendingMatch=matchParse(q); history.replaceState(null,'',location.pathname+location.hash); } }catch{}
   installBack(backStep, ()=>A.toast('Натисни «Назад» ще раз, щоб вийти'));
   // прибираємо дані старої версії застосунку (v1) з браузерів, де вона відкривалась
   try{ Object.keys(localStorage).filter(k=>k.startsWith('shauman.demo')).forEach(k=>localStorage.removeItem(k)); }catch{}
