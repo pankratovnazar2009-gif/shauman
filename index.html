@@ -954,6 +954,24 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 .match-code label{display:block;margin-bottom:6px}
 .scan-video.off{display:none}
 
+/* ===== Колесо дня на головній ===== */
+.wh{margin:20px 16px 4px;padding:16px;border-radius:var(--r-lg);display:flex;align-items:center;gap:16px;position:relative;overflow:hidden;
+  background:radial-gradient(120% 140% at 0% 50%,rgba(255,208,0,.22),transparent 60%),var(--surface);border:1px solid rgba(255,208,0,.35)}
+.wh-wheel{position:relative;flex:0 0 132px;height:132px}
+.wh .wheel{width:132px;height:132px;border-width:4px;box-shadow:0 8px 20px rgba(0,0,0,.35)}
+.wh .wheel-lbl{font-size:11px;width:40px;margin:-8px 0 0 -20px}
+.wh .wheel-hub{width:38px;height:38px;margin:-19px 0 0 -19px;border-width:3px}
+.wh .wheel-pointer{top:-8px;margin-left:-9px;border-left-width:9px;border-right-width:9px;border-top-width:16px;z-index:2}
+.wh-txt{flex:1;min-width:0}
+.wh-prize{margin:20px 16px 4px;padding:14px;border-radius:var(--r-lg);display:flex;align-items:center;gap:14px;width:calc(100% - 32px);text-align:left;
+  background:linear-gradient(120deg,rgba(255,208,0,.2),rgba(255,183,0,.06)),var(--surface);border:1px dashed var(--accent)}
+.wh-pimg{flex:0 0 72px;height:72px;border-radius:50%;background:radial-gradient(80% 80% at 50% 40%,#2a2924,#161615);display:grid;place-items:center;overflow:hidden}
+.wh-pimg .food{width:100%;height:100%}
+.wh-pimg img{width:100%;height:100%;object-fit:contain;padding:6px}
+.wh-cta{align-self:center;padding:8px 12px;border-radius:99px;background:var(--accent);color:var(--on-accent);font:800 12px var(--f-display);white-space:nowrap}
+:root[data-theme="light"] .wh-pimg{background:radial-gradient(80% 80% at 50% 40%,#fff,#ECE8E1)}
+.cat .ring{position:relative}.cat .ring img.tall{position:absolute;inset:0;object-fit:contain;width:100%;height:100%;padding:7px 0;box-sizing:border-box}
+
 
 /* ===== СКРЕТЧ-КАРТКА ===== */
 #scrLayer{position:fixed;inset:0;z-index:200;pointer-events:none}
@@ -1893,7 +1911,8 @@ function homeView(){
       <div class="txt"><span class="eyebrow">${s.eb}</span><span class="h1" style="margin-top:6px">${s.title}</span><p>${s.sub}</p><span class="cta">${s.cta} ${icon('chev','xs')}</span></div></button>`).join('')}
   </div>
   <div class="dots" role="group" aria-label="Слайди">${slides.map((s,i)=>`<button aria-label="Слайд ${i+1}" aria-current="${i===ui.heroIdx}" onclick="A.heroTo(${i})"><i></i></button>`).join('')}</div>
-  <nav class="cats" aria-label="Категорії">${CATS.map(c=>`<button class="cat" onclick="A.goCat('${c.id}')"><span class="ring"><img src="${IMG[c.img]}" class="${CUT.has(c.img)?'cutimg':''}" alt=""></span>${esc(c.name)}</button>`).join('')}</nav>
+  <nav class="cats" aria-label="Категорії">${CATS.map(c=>`<button class="cat" onclick="A.goCat('${c.id}')"><span class="ring"><img src="${IMG[c.img]}" class="${CUT.has(c.img)?'cutimg':''}${c.id==='drinks'?' tall':''}" alt=""></span>${esc(c.name)}</button>`).join('')}</nav>
+  ${window.wheelHome?wheelHome():''}
   ${last?`<div class="card reorder">
       <button class="row" style="width:100%;text-align:left;gap:12px" onclick="A.sheet({type:'receipt', id:'${last.id}'})" aria-label="Чек минулого замовлення">
       <div class="stack">${last.lines.slice(0,3).map(l=>foodHTML(ITEM[l.id]?.img||'shaw_klas','')).join('')}</div>
@@ -2179,9 +2198,8 @@ function bonusView(){
   const myC=validCoupons();
   const btab = ui.btab||'rewards';
   const head = `<header class="topbar"><h1 class="h1 grow" style="font-size:26px">Бонуси</h1><button class="icon-btn" aria-label="Профіль" onclick="A.tab('profile')">${icon('user')}</button></header>
-    <div class="seg bonus-seg" role="tablist">${[['rewards','Нагороди'],['tasks','Завдання'],['games','Ігри']].map(([k,n])=>`<button role="tab" aria-selected="${btab===k}" aria-pressed="${btab===k}" onclick="ui.btab='${k}';render()">${n}</button>`).join('')}</div>`;
+    <div class="seg bonus-seg" role="tablist">${[['rewards','Нагороди'],['tasks','Завдання']].map(([k,n])=>`<button role="tab" aria-selected="${btab===k}" aria-pressed="${btab===k}" onclick="ui.btab='${k}';render()">${n}</button>`).join('')}</div>`;
   if(btab==='tasks') return head + tasksView();
-  if(btab==='games') return head + gamesView();
   return head + `
     <section class="loy-card"><div class="row between"><span class="eyebrow">Рівень · ${esc(tier.name)}</span><span class="tag dark">×${tier.mult} бали</span></div>
       <div class="pts" style="margin-top:12px">${nf(state.points)}</div><div class="small muted">шауманів · ${EARN} за кожен 1 zł</div><div class="xs muted mono" style="margin-top:8px">Картка ${cardFmt(myCard())}</div>
@@ -2424,41 +2442,40 @@ function tasksView() {
     <div class="tasks">${allTasks().map(row).join('')}</div>`;
 }
 
-/* ---------------- ІГРИ ---------------- */
+const reduceMotion = () => document.documentElement.classList.contains('reduce-motion') || matchMedia('(prefers-reduced-motion: reduce)').matches;
+/* ---------------- КОЛЕСО ДНЯ (на головній) ----------------
+   Раз на день. Бали — колесо зникає до завтра. Їжа/знижка — замість колеса нагадування про приз до кінця робочого дня. */
 const WHEEL = [
-  { t: '+20', pts: 20, w: 26 }, { t: 'Фрі', coupon: { title: 'Картопля фрі', free: { id: 'fr_fry' } }, w: 8 }, { t: '+50', pts: 50, w: 16 }, { t: 'Напій', coupon: { title: 'Напій 0,25 л', free: { cat: 'drinks' } }, w: 10 },
-  { t: '+10', pts: 10, w: 24 }, { t: '−15%', coupon: { title: '−15% на замовлення', pct: 15 }, w: 8 }, { t: '+100', pts: 100, w: 4 }, { t: 'Завтра', w: 4 },
+  { t: '+20', pts: 20, w: 26 }, { t: 'Фрі', coupon: { title: 'Картопля фрі', free: { id: 'fr_fry' } }, img: 'frytki', w: 8 }, { t: '+50', pts: 50, w: 16 }, { t: 'Напій', coupon: { title: 'Напій 0,25 л', free: { cat: 'drinks' } }, img: 'cola', w: 10 },
+  { t: '+10', pts: 10, w: 24 }, { t: '−15%', coupon: { title: '−15% на замовлення', pct: 15 }, img: 'shaw_odes', w: 8 }, { t: '+100', pts: 100, w: 4 }, { t: 'Завтра', w: 4 },
 ];
-function gamesView() {
-  gstate(); const spun = state.games.wheelDay === dayKey(); const caught = state.games.catchDay === dayKey();
-  return `<div class="games">
-    <button class="game-card" onclick="A.open({type:'wheel'})"><div class="game-art wheel-mini" aria-hidden="true"></div><div class="grow"><span class="label">Щодня</span><b class="h3" style="display:block;margin-top:4px">Колесо удачі</b><span class="xs muted">${spun ? 'Вже крутив сьогодні — повертайся завтра' : '1 безкоштовне обертання щодня: бали, фрі, напій, знижки'}</span></div>${icon('chev', 'sm')}</button>
-    <button class="game-card" onclick="A.open({type:'catch'})"><div class="game-art catch-mini" aria-hidden="true">${foodHTML('shaw_klas', '')}</div><div class="grow"><span class="label">30 секунд</span><b class="h3" style="display:block;margin-top:4px">Лови шаурму</b><span class="xs muted">${caught ? 'Бали за сьогодні вже отримано — можна грати для рекорду' : 'Лови шаурму й фрі, уникай перцю. До 50 шауманів за гру щодня'}</span>${state.games.best ? `<br><span class="xs accent">Рекорд: ${state.games.best}</span>` : ''}</div>${icon('chev', 'sm')}</button>
-  </div>`;
-}
-EXTRA_PAGES.wheel = () => {
-  const spun = state.games.wheelDay === dayKey(); const seg = 360 / WHEEL.length; const rot = ui.wheelRot || 0;
+const prizeImg = c => c.free?.id === 'fr_fry' ? 'frytki' : c.free?.cat === 'drinks' ? 'cola' : c.free?.id ? (ITEM[c.free.id]?.img || 'shaw_klas') : 'shaw_odes';
+function wheelHome() {
+  gstate(); const g = state.games, today = g.wheelDay === dayKey();
+  const cp = today && g.wheelCoupon ? validCoupons().find(c => c.id === g.wheelCoupon) : null;
+  if (today && !ui.wheelBusy && !ui.wheelJust) {
+    if (!cp) return ''; // бали або «завтра» — до завтра колеса немає
+    return `<button class="wh-prize" onclick="X.usePrize()" aria-label="Приз дня: ${esc(cp.title)}">
+      <span class="wh-pimg">${foodHTML(prizeImg(cp), '')}</span>
+      <span class="grow"><span class="label">Приз дня з колеса</span><b class="h3" style="display:block;margin-top:4px">${esc(cp.title)}</b>
+        <span class="timer" style="margin-top:6px">${icon('clock', 'xs')}<span data-live="countdown" data-until="${cp.until}">--:--:--</span></span>
+        <span class="xs muted" style="display:block;margin-top:4px">До кінця робочого дня · ${timeStr(cp.until)}</span></span>
+      <span class="wh-cta">Використати</span></button>`;
+  }
+  const seg = 360 / WHEEL.length, rot = ui.wheelRot || 0;
   const cols = ['#FFD000', '#1D1D1B', '#FFB700', '#262624', '#FFD000', '#1D1D1B', '#FFB700', '#262624'];
   const grad = WHEEL.map((w, i) => `${cols[i]} ${i * seg}deg ${(i + 1) * seg}deg`).join(',');
-  return `<div class="page" role="dialog" aria-modal="true" aria-label="Колесо удачі">
-    <div class="page-head"><button class="icon-btn" aria-label="Назад" onclick="A.close()">${icon('back')}</button><h1 class="h2">Колесо удачі</h1><span style="width:44px"></span></div>
-    <div class="page-scroll" style="display:flex;flex-direction:column;align-items:center;padding:16px">
-      <div class="wheel-wrap"><div class="wheel-pointer" aria-hidden="true"></div>
-        <div class="wheel" id="wheel" style="background:conic-gradient(${grad});transform:rotate(${rot}deg)">${WHEEL.map((w, i) => `<span class="wheel-lbl" style="transform:rotate(${i * seg + seg / 2}deg) translateY(-112px) rotate(${-(i * seg + seg / 2)}deg);color:${i % 2 ? '#F2F0EA' : '#0E0E0D'}">${esc(w.t)}</span>`).join('')}<div class="wheel-hub" style="background-image:url(${IMG.logo})"></div></div></div>
-      <p class="muted small" id="wheelMsg" role="status" style="min-height:44px;text-align:center;margin:20px 0 8px">${ui.wheelMsg || (spun ? 'Сьогодні вже крутив. Наступне обертання — завтра.' : 'Одне безкоштовне обертання на день.')}</p>
-      <button class="btn btn-primary btn-block" style="max-width:320px" ${spun || ui.wheelBusy ? 'disabled' : ''} onclick="X.spin()">${icon('refresh', 'sm')}Крутити</button>
-    </div></div>`;
-};
-EXTRA_PAGES.catch = () => `<div class="page" role="dialog" aria-modal="true" aria-label="Лови шаурму">
-  <div class="page-head"><button class="icon-btn" aria-label="Назад" onclick="X.stopCatch();A.close()">${icon('back')}</button><h1 class="h2">Лови шаурму</h1><span class="tag dark" id="catchScore">0</span></div>
-  <div class="catch-wrap"><canvas id="catchCv" aria-label="Гра: лови шаурму. Керування — стрілки вліво/вправо або кнопки внизу" role="img"></canvas>
-    <div class="catch-hud"><span id="catchTime">30 с</span></div>
-    <div class="catch-start" id="catchStart"><b class="h2">Лови шаурму й фрі</b><p class="small muted">Шаурма +3, фрі й напої +1, перець −5.<br>Веди пакет пальцем або стрілками.</p><button class="btn btn-primary" onclick="X.startCatch()">Почати</button></div></div>
-  <div class="catch-ctrl"><button class="btn btn-ghost" aria-label="Вліво" onpointerdown="X.key(-1,true)" onpointerup="X.key(-1,false)" onpointerleave="X.key(-1,false)">${icon('back')}</button><button class="btn btn-ghost" aria-label="Вправо" onpointerdown="X.key(1,true)" onpointerup="X.key(1,false)" onpointerleave="X.key(1,false)">${icon('chev')}</button></div>
-</div>`;
-let G = null;
+  return `<section class="wh" aria-label="Колесо дня">
+    <div class="wh-wheel"><div class="wheel-pointer" aria-hidden="true"></div>
+      <div class="wheel" id="wheel" style="background:conic-gradient(${grad});transform:rotate(${rot}deg)">${WHEEL.map((w, i) => `<span class="wheel-lbl" style="transform:rotate(${i * seg + seg / 2}deg) translateY(-50px) rotate(${-(i * seg + seg / 2)}deg);${w.t.length > 4 ? "font-size:9px;" : ""}color:${i % 2 ? '#F2F0EA' : '#0E0E0D'}">${esc(w.t)}</span>`).join('')}<div class="wheel-hub" style="background-image:url(${IMG.logo})"></div></div></div>
+    <div class="wh-txt"><span class="label">Колесо дня</span><b class="h3" style="display:block;margin-top:4px">${ui.wheelJust ? esc(ui.wheelJust) : 'Крути раз на день'}</b>
+      <p class="xs muted" style="margin:4px 0 10px">${ui.wheelJust ? (ui.wheelJustCp ? 'Приз діє до кінця робочого дня — нагадаємо тут' : 'Наступне обертання — завтра') : 'Бали, фрі, напій або знижка. Призи діють до кінця робочого дня.'}</p>
+      ${ui.wheelJust ? '' : `<button class="btn btn-primary btn-sm" onclick="X.spin()" ${ui.wheelBusy ? 'disabled' : ''}>${icon('refresh', 'sm')}Крутити</button>`}</div>
+  </section>`;
+}
+window.wheelHome = wheelHome;
 const X = window.X = {
-  busy() { return !!G || !!X._ms; },
+  busy() { return !!X._ms; },
   claim(id) { const t = allTasks().find(x => x.id === id); if (!t || state.tasks[id] === 'claimed' || t.prog() < t.goal) return; state.tasks[id] = 'claimed'; grant(t.reward, 'Завдання: ' + t.title); render(); A.toast('Отримано: ' + t.rtext); },
   checkIn(mid, how) { const m = matchList().find(x => x.id === mid); if (!m) return A.toast('Матч не знайдено');
     if (!matchActive(m)) return A.toast('Відмітка працює лише в день матчу');
@@ -2487,57 +2504,25 @@ const X = window.X = {
   friendDemo() { state.tasks.t_friend_done = true; save(); ui.sheet = null; ui.btab = 'tasks'; render(); A.toast('Друг зробив перше замовлення (демо)'); },
   rate(n) { state.tasks.t_review_done = true; state.lastRating = n; save(); ui.sheet = null; ui.btab = 'tasks'; render(); A.toast('Дякуємо за оцінку!'); },
   spin() {
-    if (state.games.wheelDay === dayKey() || ui.wheelBusy) return;
+    gstate(); if (state.games.wheelDay === dayKey() || ui.wheelBusy) return;
     const tot = WHEEL.reduce((s, w) => s + w.w, 0); let r = Math.random() * tot, idx = 0; for (; idx < WHEEL.length; idx++) { r -= WHEEL[idx].w; if (r <= 0) break; }
     idx = Math.min(idx, WHEEL.length - 1); const seg = 360 / WHEEL.length;
-    const target = 360 * 6 + (360 - (idx * seg + seg / 2)); ui.wheelRot = (ui.wheelRot || 0) - ((ui.wheelRot || 0) % 360) + target; ui.wheelBusy = true; ui.wheelMsg = '';
-    state.games.wheelDay = dayKey(); save();
-    const el = $('#wheel'); if (el) { el.style.transition = state.settings.reduceMotion ? 'none' : 'transform 4.2s cubic-bezier(.16,1,.3,1)'; el.style.transform = `rotate(${ui.wheelRot}deg)`; }
-    $('.page .btn-primary')?.setAttribute('disabled', '');
-    setTimeout(() => { const w = WHEEL[idx]; ui.wheelBusy = false;
-      if (w.pts || w.coupon) { grant(w, 'Колесо удачі: ' + w.t); ui.wheelMsg = w.coupon ? `Виграш: «${w.coupon.title}» — купон уже в «Моїх купонах»` : `Виграш: ${w.t} шауманів!`; }
-      else ui.wheelMsg = 'Цього разу без призу — спробуй завтра!';
-      render(); }, state.settings.reduceMotion ? 300 : 4300);
+    const target = 360 * 6 + (360 - (idx * seg + seg / 2)); ui.wheelRot = (ui.wheelRot || 0) - ((ui.wheelRot || 0) % 360) + target; ui.wheelBusy = true;
+    state.games.wheelDay = dayKey(); state.games.wheelCoupon = null; save();
+    const rm = reduceMotion(), el = $('#wheel'); if (el) { el.style.transition = rm ? 'none' : 'transform 4.2s cubic-bezier(.16,1,.3,1)'; el.style.transform = `rotate(${ui.wheelRot}deg)`; }
+    $('.wh .btn')?.setAttribute('disabled', '');
+    setTimeout(() => { const w = WHEEL[idx]; ui.wheelBusy = false; ui.wheelJustCp = !!w.coupon;
+      if (w.pts) { grant(w, 'Колесо дня: ' + w.t); ui.wheelJust = `+${w.pts} шауманів!`; }
+      else if (w.coupon) { const close = closeAt(state.pointId), id = 'wh_' + rid(6);
+        state.coupons.push({ id, source: 'wheel', until: close > Date.now() ? close : new Date().setHours(23, 59, 0, 0), ...w.coupon });
+        state.games.wheelCoupon = id; save(); ui.wheelJust = 'Виграш: ' + w.coupon.title; }
+      else ui.wheelJust = 'Цього разу без призу';
+      try { navigator.vibrate?.(40); } catch {}
+      render(); setTimeout(() => { ui.wheelJust = null; render(); }, 3500); }, rm ? 300 : 4300);
   },
-  key(dir, on) { if (G) G.keys[dir] = on; },
-  stopCatch() { if (G) { cancelAnimationFrame(G.raf); window.removeEventListener('keydown', G.kd); window.removeEventListener('keyup', G.ku); G = null; } },
-  startCatch() {
-    X.stopCatch(); const cv = $('#catchCv'); if (!cv) return; $('#catchStart').style.display = 'none';
-    const box = cv.parentElement.getBoundingClientRect(); const dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = box.width * dpr; cv.height = box.height * dpr; cv.style.width = box.width + 'px'; cv.style.height = box.height + 'px';
-    const g = cv.getContext('2d'); g.scale(dpr, dpr); const W = box.width, H = box.height;
-    const imgs = {}; for (const k of ['shaw_klas', 'shaw_odes', 'frytki', 'cola', 'nuggets', 'logo']) { const im = new Image(); im.src = IMG[k]; imgs[k] = im; }
-    G = { score: 0, t0: performance.now(), dur: 30000, x: W / 2, keys: { '-1': false, '1': false }, items: [], last: 0, raf: 0 };
-    G.kd = e => { if (e.key === 'ArrowLeft') G.keys[-1] = true; if (e.key === 'ArrowRight') G.keys[1] = true; };
-    G.ku = e => { if (e.key === 'ArrowLeft') G.keys[-1] = false; if (e.key === 'ArrowRight') G.keys[1] = false; };
-    window.addEventListener('keydown', G.kd); window.addEventListener('keyup', G.ku);
-    cv.onpointermove = e => { const r = cv.getBoundingClientRect(); if (e.pointerType !== 'mouse' || e.buttons) G.x = e.clientX - r.left; };
-    cv.onpointerdown = e => { const r = cv.getBoundingClientRect(); G.x = e.clientX - r.left; };
-    const KINDS = [{ k: 'shaw_klas', p: 3, w: 3 }, { k: 'shaw_odes', p: 3, w: 2 }, { k: 'frytki', p: 1, w: 3 }, { k: 'cola', p: 1, w: 2 }, { k: 'nuggets', p: 1, w: 2 }, { k: 'chili', p: -5, w: 2 }];
-    const tot = KINDS.reduce((s, k) => s + k.w, 0);
-    const step = now => { if (!G) return; const el = now - G.t0; const left = Math.max(0, G.dur - el);
-      if (G.keys[-1]) G.x -= 7; if (G.keys[1]) G.x += 7; G.x = Math.max(36, Math.min(W - 36, G.x));
-      if (now - G.last > Math.max(320, 700 - el / 60)) { G.last = now; let r = Math.random() * tot, k = KINDS[0]; for (const kk of KINDS) { r -= kk.w; if (r <= 0) { k = kk; break; } } G.items.push({ ...k, x: 30 + Math.random() * (W - 60), y: -40, v: 2.2 + el / 9000 + Math.random() * 1.2 }); }
-      g.clearRect(0, 0, W, H);
-      for (const it of G.items) { it.y += it.v;
-        if (it.k === 'chili') { g.fillStyle = '#E2341D'; g.beginPath(); g.ellipse(it.x, it.y, 10, 20, .5, 0, 7); g.fill(); g.fillStyle = '#3BB54A'; g.fillRect(it.x - 3, it.y - 26, 6, 9); }
-        else if (imgs[it.k].complete) g.drawImage(imgs[it.k], it.x - 26, it.y - 26, 52, 52);
-        if (it.y > H - 70 && it.y < H - 30 && Math.abs(it.x - G.x) < 46) { it.hit = true; G.score = Math.max(0, G.score + it.p); }
-      }
-      G.items = G.items.filter(i => !i.hit && i.y < H + 40);
-      // пакет
-      g.fillStyle = '#C49A6C'; g.beginPath(); g.roundRect ? g.roundRect(G.x - 40, H - 58, 80, 46, 6) : g.rect(G.x - 40, H - 58, 80, 46); g.fill();
-      if (imgs.logo.complete) g.drawImage(imgs.logo, G.x - 14, H - 50, 28, 28);
-      const sc = $('#catchScore'); if (sc) sc.textContent = G.score; const tm = $('#catchTime'); if (tm) tm.textContent = Math.ceil(left / 1000) + ' с';
-      if (left <= 0) return X.endCatch();
-      G.raf = requestAnimationFrame(step); };
-    G.raf = requestAnimationFrame(step);
-  },
-  endCatch() { const score = G?.score || 0; X.stopCatch(); gstate(); state.games.best = Math.max(state.games.best || 0, score);
-    let msg = `Результат: ${score}.`;
-    if (state.games.catchDay !== dayKey() && score > 0) { const pts = Math.min(50, score); state.games.catchDay = dayKey(); grant({ pts }, 'Гра «Лови шаурму»'); msg += ` +${pts} шауманів!`; }
-    else msg += ' Бали за сьогодні вже отримано.';
-    save(); const st = $('#catchStart'); if (st) { st.style.display = ''; st.innerHTML = `<b class="h2">${esc(msg)}</b><p class="small muted">Рекорд: ${state.games.best}</p><button class="btn btn-primary" onclick="X.startCatch()">Ще раз</button>`; } },
+  usePrize() { const c = validCoupons().find(x => x.id === state.games?.wheelCoupon); if (!c) return render();
+    if (c.free?.id && ITEM[c.free.id]) { A.quickAdd(c.free.id); A.toast(c.title + ' в кошику — 0 zł'); }
+    else A.goCat(c.free?.cat || 'shawarma'); },
 };
 EXTRA_SHEETS.match = () => { const m = nextMatch(); if (!m) return null; const act = matchActive(m); const d = new Date(m.at);
   return { title: 'Матч MFC SHAUMAN', body: `<div class="match-card"><span class="label">${act ? 'Сьогодні' : 'Наступний матч'}</span><b class="h3" style="display:block;margin:4px 0">${esc(m.title)}</b><span class="xs muted">${dateStr(m.at)}, ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')} · ${esc(m.venue)}</span></div>
@@ -2702,7 +2687,7 @@ function confetti(holo) {
 const I18N = (() => {
   // [pl, en]
   const D = {
-    'Головна': ['Start', 'Home'], 'Замовити за купоном · 0 zł': ['Zamów z kuponem · 0 zł', 'Order with coupon · 0 zł'], 'Меню': ['Menu', 'Menu'], 'Замовлення': ['Zamówienia', 'Orders'], 'Бонуси': ['Bonusy', 'Rewards'],
+    'Головна': ['Start', 'Home'], 'Колесо дня': ['Koło dnia', 'Wheel of the day'], 'Крути раз на день': ['Kręć raz dziennie', 'Spin once a day'], 'Крутити': ['Zakręć', 'Spin'], 'Приз дня з колеса': ['Nagroda dnia z koła', 'Prize of the day'], 'Використати': ['Użyj', 'Use'], 'Наступне обертання — завтра': ['Kolejny obrót — jutro', 'Next spin — tomorrow'], 'Бали, фрі, напій або знижка. Призи діють до кінця робочого дня.': ['Punkty, frytki, napój lub rabat. Nagrody ważne do końca dnia pracy.', 'Points, fries, a drink or a discount. Prizes valid until closing.'], 'Замовити за купоном · 0 zł': ['Zamów z kuponem · 0 zł', 'Order with coupon · 0 zł'], 'Меню': ['Menu', 'Menu'], 'Замовлення': ['Zamówienia', 'Orders'], 'Бонуси': ['Bonusy', 'Rewards'],
     'Смак Одеси в серці Польщі': ['Smak Odessy w sercu Polski', 'Taste of Odesa in the heart of Poland'], 'Шукай шаурму, фрі, напої…': ['Szukaj shawarmy, frytek, napojów…', 'Search shawarma, fries, drinks…'],
     'Шаурма, сир, фрі…': ['Shawarma, ser, frytki…', 'Shawarma, cheese, fries…'], 'Популярне': ['Popularne', 'Popular'], 'Усе меню': ['Całe menu', 'Full menu'],
     'Минулого разу': ['Ostatnio', 'Last time'], 'Повторити минуле замовлення': ['Powtórz ostatnie zamówienie', 'Repeat last order'],
