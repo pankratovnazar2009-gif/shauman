@@ -1478,6 +1478,17 @@ const Shared = (() => {
   };
 })();
 /* Картка лояльності: постійний номер (8 цифр) і постійний QR для кожного клієнта. У проді номер і підпис видає сервер. */
+/* системна «Назад» (Android-кнопка, жест, кнопка браузера): закриває верхнє вікно, а не весь застосунок.
+   step() повертає true, якщо щось закрили; на головному екрані — підказка, друге натискання виходить. */
+function installBack(step, onRoot) {
+  let armed = false;
+  const arm = () => { if (armed) return; try { history.pushState({ shm: 1 }, ''); armed = true; } catch {} };
+  try { history.replaceState({ shm: 0 }, ''); } catch {} arm();
+  addEventListener('popstate', () => { armed = false; let done = false; try { done = step(); } catch (e) { console.warn(e); }
+    if (done) arm(); else onRoot?.(); });
+  // будь-який дотик знову «озброює» — після підказки на головній
+  document.addEventListener('pointerdown', arm, true);
+}
 const qrHash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
 const cardFor = uid => String(10000000 + qrHash(uid + '#card') % 90000000);
 const cardFmt = c => String(c || '').replace(/(\d{4})(\d{4})/, '$1 $2');
@@ -2527,7 +2538,18 @@ function render(){
 }
 
 document.addEventListener('keydown', e=>{ if(e.key==='Escape'){ if(ui.pay&&['blik','card','fail'].includes(ui.pay.phase)) A.payCancel(); else if(ui.sheet) A.closeSheet(); else if(ui.page) A.close(); } });
+function backStep(){
+  if(document.querySelector('#scrLayer .scr')){ X.scrAct(); return true; }
+  if(ui.pay){ if(['blik','card','fail','wallet-sheet'].includes(ui.pay.phase)) A.payCancel(); return true; } // оплата йде — не перериваємо
+  if(ui.sheet){ if(ui.sheet.type==='avatar' && ui.sheet.back){ ui.sheet={type:'editProfile', name:ui.sheet.name}; render(); } else A.closeSheet(); return true; }
+  if(ui.page){ const b=document.querySelector('.page .page-head button'); if(b) b.click(); else A.close(); return true; }
+  if(!state.user){ const b=document.querySelector('.auth > button[aria-label="Назад"]'); if(b){ b.click(); return true; } return false; }
+  if(ui.tab==='orders'){ A.tab('profile'); return true; }
+  if(ui.tab!=='home'){ A.tab('home'); return true; }
+  return false;
+}
 function startClient(){
+  installBack(backStep, ()=>A.toast('Натисни «Назад» ще раз, щоб вийти'));
   // прибираємо дані старої версії застосунку (v1) з браузерів, де вона відкривалась
   try{ Object.keys(localStorage).filter(k=>k.startsWith('shauman.demo')).forEach(k=>localStorage.removeItem(k)); }catch{}
   try{ caches?.keys().then(ks=>ks.filter(k=>/^shauman-v[1-8]$/.test(k)).forEach(k=>caches.delete(k))); }catch{}
