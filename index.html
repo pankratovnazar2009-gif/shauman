@@ -1904,7 +1904,6 @@ function homeView(){
     <button class="icon-btn" aria-label="Профіль" onclick="A.tab('profile')">${icon('user')}</button>
   </header>
   ${pointPill()}
-  <button class="search" style="width:calc(100% - 32px);text-align:left" onclick="A.focusSearch()" aria-label="Пошук по меню">${icon('search','sm')}<span style="color:var(--faint)">Шукай шаурму, фрі, напої…</span></button>
   <div class="hero" id="hero" role="region" aria-roledescription="карусель" aria-label="Акції" onscroll="heroScroll(this)">
     ${slides.map((s,i)=>`<button class="slide ${s.cls}" onclick="${s.act}" aria-label="${s.eb}: ${s.title.replace(/<br>/g,' ')}">
       ${s.rays?'<div class="rays"></div>':''}${s.art?walletArt():`<img class="bgimg ${s.cut?'cut':''}" src="${IMG[s.img]}" alt="">`}
