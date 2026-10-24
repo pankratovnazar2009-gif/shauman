@@ -1110,17 +1110,19 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 #splash .sp-ring .bg{stroke:rgba(255,208,0,.12)}
 #splash .sp-ring .fg{stroke:#FFD000;stroke-dasharray:666;stroke-dashoffset:666;animation:spFill 1.5s cubic-bezier(.6,.05,.3,1) .25s forwards;filter:drop-shadow(0 0 6px rgba(255,208,0,.6))}
 #splash .sp-logo{width:150px;height:150px;border-radius:50%;background:#000 center/cover;box-shadow:0 0 0 4px #0A0A09,0 0 40px rgba(255,208,0,.35);
-  animation:spPop .7s cubic-bezier(.2,1.6,.4,1) both}
+  animation:spPop .7s cubic-bezier(.2,1.6,.4,1) both,spPulse .55s ease 1.75s}
 #splash .sp-orbit{position:absolute;inset:-26px;animation:spSpin 3.2s linear infinite}
 #splash .sp-orbit img{position:absolute;width:54px;height:54px;object-fit:contain;filter:drop-shadow(0 6px 8px rgba(0,0,0,.6));animation:spIn .5s ease both}
 #splash .sp-orbit img:nth-child(1){left:50%;top:-6px;margin-left:-27px;animation-delay:.3s}
 #splash .sp-orbit img:nth-child(2){right:-6px;top:50%;margin-top:-27px;animation-delay:.45s}
 #splash .sp-orbit img:nth-child(3){left:50%;bottom:-6px;margin-left:-27px;animation-delay:.6s}
 #splash .sp-orbit img:nth-child(4){left:-6px;top:50%;margin-top:-27px;animation-delay:.75s}
-#splash .sp-word{display:flex;gap:2px;font-weight:900;font-size:34px;letter-spacing:.06em;color:#FFD000}
+#splash .sp-word{animation:spGlow .7s ease 1.7s;display:flex;gap:2px;font-weight:900;font-size:34px;letter-spacing:.06em;color:#FFD000}
 #splash .sp-word span{display:inline-block;animation:spDrop .55s cubic-bezier(.2,1.5,.4,1) both}
 #splash .sp-msg{min-height:20px;font:600 14px Manrope,system-ui,sans-serif;color:#bdb8ad;letter-spacing:.01em;animation:spIn .5s ease 1s both}
 #splash .sp-msg b{color:#F2F0EA}
+@keyframes spPulse{50%{transform:scale(1.1);box-shadow:0 0 0 4px #0A0A09,0 0 70px rgba(255,208,0,.75)}}
+@keyframes spGlow{50%{transform:scale(1.08);text-shadow:0 0 18px rgba(255,208,0,.8)}}
 @keyframes spSpin{to{transform:rotate(360deg)}}
 @keyframes spFill{to{stroke-dashoffset:0}}
 @keyframes spPop{from{transform:scale(.3) rotate(-25deg);opacity:0}}
@@ -1140,16 +1142,16 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 </div>
 <script>
 (function(){
-  var w=document.querySelector('#splash .sp-word');'SHAUMAN'.split('').forEach(function(c,i){var s=document.createElement('span');s.textContent=c;s.style.animationDelay=(.55+i*.07)+'s';w.appendChild(s);});
+  var w=document.querySelector('#splash .sp-word');'SHAUMAN'.split('').forEach(function(c,i){var s=document.createElement('span');s.textContent=c;s.style.animationDelay=(.45+i*.065)+'s';w.appendChild(s);});
   var lang='ua';try{var st=JSON.parse(localStorage.getItem('shauman2.state')||'{}');lang=(st.settings&&st.settings.lang)||'ua';}catch(e){}
   var M={ua:['Крутимо лаваш…','Розігріваємо гриль…','Шинкуємо капусту по-корейськи…','Мішаємо фірмовий часниковий соус…','Одеса на зв’язку…','Рахуємо твої шаумани…','Смажимо фрі до хрусту…'],
          pl:['Zawijamy lawasz…','Rozgrzewamy grill…','Mieszamy firmowy sos czosnkowy…','Odessa na łączach…','Liczymy twoje szaumany…','Smażymy frytki na chrupko…'],
          en:['Rolling the lavash…','Heating up the grill…','Mixing the signature garlic sauce…','Odesa calling…','Counting your points…','Frying the fries extra crispy…']};
   var L=M[lang]||M.ua;document.getElementById('spMsg').textContent=L[Math.floor(Math.random()*L.length)];
-  var KEEP=/splash/.test(location.hash), MIN=1700; // #splash — тримати заставку (для перегляду)
+  var KEEP=/splash/.test(location.hash), MIN=2300, T0=performance.now(); // #splash — тримати заставку (для перегляду)
   window.hideSplash=function(){if(KEEP)return;var el=document.getElementById('splash');if(!el||el.classList.contains('out'))return;
-    setTimeout(function(){el.classList.add('out');setTimeout(function(){el.remove();},1000);},Math.max(0,MIN-performance.now()));};
-  setTimeout(window.hideSplash,8000); // запобіжник
+    setTimeout(function(){el.classList.add('out');setTimeout(function(){el.remove();},1000);},Math.max(0,T0+MIN-performance.now()));};
+  setTimeout(window.hideSplash,9000); // запобіжник
 })();
 </script>
 
