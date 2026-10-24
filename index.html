@@ -891,6 +891,9 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 .wheel-wrap{position:relative;width:300px;height:300px;margin-top:8px}
 .wheel{width:300px;height:300px;border-radius:50%;border:6px solid var(--accent);position:relative}
 .wheel-lbl{position:absolute;left:50%;top:50%;margin:-12px 0 0 -30px;width:60px;text-align:center;font:900 15px var(--f-display)}
+/* обертання колеса: --from/--to/--dur задає X.spin(); !important — щоб глобальне «менше анімацій» не вбивало його до 1 мс */
+@keyframes wheel-spin{from{transform:rotate(var(--from))}to{transform:rotate(var(--to))}}
+.wheel.spinning{animation:wheel-spin var(--dur) cubic-bezier(.16,1,.3,1) both;animation-duration:var(--dur)!important;animation-iteration-count:1!important}
 .wheel-hub{position:absolute;inset:50%;width:70px;height:70px;margin:-35px 0 0 -35px;border-radius:50%;background:#000 center/cover;border:4px solid var(--accent)}
 .wheel-pointer{position:absolute;top:-12px;left:50%;margin-left:-14px;width:0;height:0;border-left:14px solid transparent;border-right:14px solid transparent;border-top:26px solid #F2F0EA;z-index:2;filter:drop-shadow(0 2px 2px rgba(0,0,0,.5))}
 .catch-wrap{position:relative;flex:1;margin:0 16px;border-radius:var(--r-lg);overflow:hidden;background:radial-gradient(90% 70% at 50% 30%,#22211e,#121211);touch-action:none}
@@ -1015,6 +1018,32 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 .partner.glovo{background:#FFC244;color:#1D1D1B}
 .partner.wolt{background:#009DE0;color:#fff}
 .partner:active{transform:scale(.97)}
+
+/* ===== Адаптивність: банери й екрани під будь-який телефон / планшет ===== */
+.hero .slide{container-type:inline-size;height:auto;aspect-ratio:343/208;min-height:160px;max-height:300px}
+.hero .slide .txt{max-width:62%;padding:clamp(12px,5.6cqw,24px);gap:0}
+.hero .slide .eyebrow{font-size:clamp(9px,3cqw,12px)}
+.hero .slide .h1{font-size:clamp(19px,8.6cqw,38px);line-height:1.02;margin-top:clamp(2px,1.2cqw,6px)!important}
+.hero .slide p{font-size:clamp(10.5px,3.6cqw,15px);margin-top:clamp(3px,1.6cqw,8px);text-shadow:0 1px 8px rgba(0,0,0,.55);display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.hero .slide .cta{font-size:clamp(11.5px,3.9cqw,16px);white-space:nowrap}
+.hero .slide .bgimg.cut{width:56%;right:-1%;padding:clamp(8px,4cqw,18px) 0}
+:root[data-theme="light"] .hero .slide p{text-shadow:0 1px 8px rgba(255,250,230,.8)}
+/* вузькі телефони (iPhone SE, старі Android) */
+@media (max-width:360px){
+  .topbar .hello b{font-size:18px}.topbar .hello span{font-size:11px}
+  .mode-sw button{font-size:13px;gap:6px}
+  .wh{gap:12px;padding:12px}.wh-wheel{flex-basis:108px;height:108px}.wh .wheel{width:108px;height:108px}
+  .wh .wheel-lbl{font-size:9px}.wh .wheel-lbl[style*="font-size:9px"]{font-size:7.5px!important}
+  .nav button{font-size:10px}
+}
+/* планшети з дотиком: на весь екран без «рамки телефона» */
+@media (min-width:600px) and (pointer:coarse){
+  #app{max-width:720px;height:100dvh;border:0;border-radius:0}
+}
+@media (max-width:360px){.wh .wheel{--wl:-40px}}
+.partner{padding:10px 8px;text-align:center}
+.page-foot .btn{white-space:nowrap}
+@media (max-width:360px){.partner b{font-size:19px}.partner .xs{font-size:10.5px}.page-foot{gap:8px}.page-foot .btn{padding:0 12px;font-size:14px}}
 
 
 /* ===== СКРЕТЧ-КАРТКА ===== */
@@ -2646,9 +2675,13 @@ function wheelHome() {
   const seg = 360 / WHEEL.length, rot = ui.wheelRot || 0;
   const cols = ['#FFD000', '#1D1D1B', '#FFB700', '#262624', '#FFD000', '#1D1D1B', '#FFB700', '#262624'];
   const grad = WHEEL.map((w, i) => `${cols[i]} ${i * seg}deg ${(i + 1) * seg}deg`).join(',');
+  /* Обертання — CSS-анімація з відʼємною затримкою: якщо головна перемалюється під час обертання
+     (збереження, оновлення бази), нове колесо продовжить з того ж місця, а не стрибне в кінець. */
+  const spin = ui.wheelBusy && ui.wheelSpin
+    ? `--from:${ui.wheelSpin.from}deg;--to:${rot}deg;--dur:${ui.wheelSpin.dur}ms;animation-delay:${-(Date.now() - ui.wheelSpin.start)}ms;` : '';
   return `<section class="wh" aria-label="Колесо дня">
     <div class="wh-wheel"><div class="wheel-pointer" aria-hidden="true"></div>
-      <div class="wheel" id="wheel" style="background:conic-gradient(${grad});transform:rotate(${rot}deg)">${WHEEL.map((w, i) => `<span class="wheel-lbl" style="transform:rotate(${i * seg + seg / 2}deg) translateY(-50px) rotate(${-(i * seg + seg / 2)}deg);${w.t.length > 4 ? "font-size:9px;" : ""}color:${i % 2 ? '#F2F0EA' : '#0E0E0D'}">${esc(w.t)}</span>`).join('')}<div class="wheel-hub" style="background-image:url(${IMG.logo})"></div></div></div>
+      <div class="wheel${spin ? ' spinning' : ''}" id="wheel" style="background:conic-gradient(${grad});transform:rotate(${rot}deg);${spin}">${WHEEL.map((w, i) => `<span class="wheel-lbl" style="transform:rotate(${i * seg + seg / 2}deg) translateY(var(--wl,-50px)) rotate(${-(i * seg + seg / 2)}deg);${w.t.length > 4 ? "font-size:9px;" : ""}color:${i % 2 ? '#F2F0EA' : '#0E0E0D'}">${esc(w.t)}</span>`).join('')}<div class="wheel-hub" style="background-image:url(${IMG.logo})"></div></div></div>
     <div class="wh-txt"><span class="label">Колесо дня</span><b class="h3" style="display:block;margin-top:4px">${ui.wheelJust ? esc(ui.wheelJust) : 'Крути раз на день'}</b>
       <p class="xs muted" style="margin:4px 0 10px">${ui.wheelJust ? (ui.wheelJustCp ? 'Приз діє до кінця робочого дня — нагадаємо тут' : 'Наступне обертання — завтра') : 'Бали, фрі, напій або знижка. Призи діють до кінця робочого дня.'}</p>
       ${ui.wheelJust ? '' : `<button class="btn btn-primary btn-sm" onclick="X.spin()" ${ui.wheelBusy ? 'disabled' : ''}>${icon('refresh', 'sm')}Крутити</button>`}</div>
@@ -2688,18 +2721,21 @@ const X = window.X = {
     gstate(); if (state.games.wheelDay === dayKey() || ui.wheelBusy) return;
     const tot = WHEEL.reduce((s, w) => s + w.w, 0); let r = Math.random() * tot, idx = 0; for (; idx < WHEEL.length; idx++) { r -= WHEEL[idx].w; if (r <= 0) break; }
     idx = Math.min(idx, WHEEL.length - 1); const seg = 360 / WHEEL.length;
-    const target = 360 * 6 + (360 - (idx * seg + seg / 2)); ui.wheelRot = (ui.wheelRot || 0) - ((ui.wheelRot || 0) % 360) + target; ui.wheelBusy = true;
+    // при «менше анімацій» колесо все одно крутиться, але коротше: 2 оберти за 1,6 с
+    const rm = reduceMotion(), turns = rm ? 2 : 6, dur = rm ? 1600 : 4200;
+    const from = ui.wheelRot || 0, target = 360 * turns + (360 - (idx * seg + seg / 2));
+    ui.wheelRot = from - (from % 360) + target; ui.wheelBusy = true;
+    ui.wheelSpin = { from, dur, start: Date.now() };
     state.games.wheelDay = dayKey(); state.games.wheelCoupon = null; save();
-    const rm = reduceMotion(), el = $('#wheel'); if (el) { el.style.transition = rm ? 'none' : 'transform 4.2s cubic-bezier(.16,1,.3,1)'; el.style.transform = `rotate(${ui.wheelRot}deg)`; }
-    $('.wh .btn')?.setAttribute('disabled', '');
-    setTimeout(() => { const w = WHEEL[idx]; ui.wheelBusy = false; ui.wheelJustCp = !!w.coupon;
+    render();
+    setTimeout(() => { ui.wheelSpin = null; const w = WHEEL[idx]; ui.wheelBusy = false; ui.wheelJustCp = !!w.coupon;
       if (w.pts) { grant(w, 'Колесо дня: ' + w.t); ui.wheelJust = `+${w.pts} шауманів!`; }
       else if (w.coupon) { const close = closeAt(state.pointId), id = 'wh_' + rid(6);
         state.coupons.push({ id, source: 'wheel', until: close > Date.now() ? close : new Date().setHours(23, 59, 0, 0), ...w.coupon });
         state.games.wheelCoupon = id; save(); ui.wheelJust = 'Виграш: ' + w.coupon.title; }
       else ui.wheelJust = 'Цього разу без призу';
       try { navigator.vibrate?.(40); } catch {}
-      render(); setTimeout(() => { ui.wheelJust = null; render(); }, 3500); }, rm ? 300 : 4300);
+      render(); setTimeout(() => { ui.wheelJust = null; render(); }, 3500); }, dur + 100);
   },
   usePrize() { const c = validCoupons().find(x => x.id === state.games?.wheelCoupon); if (!c) return render();
     if (c.free?.id && ITEM[c.free.id]) { A.quickAdd(c.free.id); A.toast(c.title + ' в кошику — 0 zł'); }
