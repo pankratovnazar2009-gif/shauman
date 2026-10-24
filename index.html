@@ -1581,20 +1581,17 @@ function seedOrders(){
   ];
 }
 function defaultState(){
-  const orders = seedOrders();
-  const spent = orders.reduce((s,o)=>s+o.total,0);
   return {
     v:2, user:null,
     consents:{terms:false, marketing:false, push:'unknown'},
-    points: orders.reduce((s,o)=>s+o.pts,0) + WELCOME_BONUS, spent, welcomeGiven:true,
-    ptsLog:[{at:now()-13*864e5, delta:WELCOME_BONUS, label:'Вітальний бонус'}, ...orders.map(o=>({at:o.at, delta:o.pts, label:'Чек '+o.id}))].sort((a,b)=>b.at-a.at),
-    cards:[{id:'c1', brand:'Visa', last4:'4242'}],
+    points:0, spent:0, welcomeGiven:false, ptsLog:[],
+    cards:[],
     cart:[], format:'pickup', pointId:'pl', address:'', when:'asap',
     payMethod:null, couponId:null,
-    favs:['sh_odes','sh_firm'],
+    favs:[],
     coupons:[{id:'cp_odes', title:'−15% на Odesska', pct:15, onlyIds:['sh_odes','sc_odes'], until:closeAt('pl'), closeOfDay:true, source:'promo'}],
     usedPromos:[],
-    orders, notifs:[],
+    orders:[], notifs:[],
     events:[], settings:{reduceMotion:false}, creditsApplied:[],
   };
 }
@@ -1609,16 +1606,27 @@ function parseState(raw){
     if(!POINT[merged.pointId]) merged.pointId = 'pl';
     merged.coupons.forEach(c=>{ if(c.id==='cp_odes') c.closeOfDay=true; });
     if(!['pickup','dine'].includes(merged.format)) merged.format = 'pickup';
+    if(!merged.user || !String(merged.user.id).startsWith('up_')) return {...d, settings:merged.settings};
     return merged;
   }catch{ return null; }
 }
 let state = (()=>{ try{ return parseState(localStorage.getItem(KEY)) || defaultState(); }catch{ return defaultState(); } })();
 const OPS = () => Shared.data.ops;
 let _clientSent = '';
-function syncClient(){ const u=state.user; if(!u) return; const snap={name:u.name, phone:u.phone, card:cardFor(u.id), since:u.since, points:state.points, spent:Math.round(state.spent), tier:tierOf(state.spent).name, marketing:!!state.consents.marketing, avatar:state.avatar||'klas'};
-  const j=JSON.stringify(snap); if(j===_clientSent) return; const cur=Shared.data.clients[u.id]; _clientSent=j;
-  if(cur && JSON.stringify({name:cur.name, phone:cur.phone, card:cur.card, since:cur.since, points:cur.points, spent:cur.spent, tier:cur.tier, marketing:!!cur.marketing, avatar:cur.avatar||'klas'})===j) return;
-  Shared.putClient(u.id, snap); }
+const ACCT = ['points','spent','welcomeGiven','ptsLog','coupons','usedPromos','favs','cards','tasks','games','passes','creditsApplied','lastRating'];
+function syncClient(){ const u=state.user; if(!u) return;
+  const acct={}; for(const k of ACCT) if(state[k]!==undefined) acct[k]=k==='ptsLog'?state[k].slice(0,40):state[k];
+  const snap={name:u.name, phone:u.phone, card:cardFor(u.id), since:u.since, points:state.points, spent:Math.round(state.spent), tier:tierOf(state.spent).name, marketing:!!state.consents.marketing, avatar:state.avatar||'klas', acct};
+  const j=JSON.stringify(snap); if(j===_clientSent) return; _clientSent=j; Shared.putClient(u.id, snap); }
+/* номер → акаунт: той самий номер відкриває той самий акаунт (картка, QR, бали, історія) */
+const phoneUid = digits => 'up_'+qrHash('+48'+digits).toString(36);
+function openAccount(uid, c){
+  const keep={settings:state.settings, consents:{...state.consents, terms:true}};
+  state={...defaultState(), ...keep, ...(c.acct||{points:c.points||0, spent:c.spent||0, welcomeGiven:true}), avatar:c.avatar||'klas',
+    user:{id:uid, phone:c.phone, name:c.name, since:c.since||now()},
+    orders:Object.values(Shared.data.orders).filter(o=>o.uid===uid).sort((a,b)=>b.at-a.at)};
+  if(!c.acct) state.creditsApplied=Object.values(Shared.data.credits).filter(x=>x.uid===uid).map(x=>x.id); // старий запис без історії — бали вже враховані
+}
 const save = () => { try{ localStorage.setItem(KEY, JSON.stringify(state)); }catch{} syncClient(); };
 const track = (type, props={}) => { state.events.push({t:now(), type, ...props}); if(state.events.length>400) state.events.splice(0, 100); };
 
@@ -1704,15 +1712,19 @@ const A = {
   otpKey(k){ if(k==='del') ui.auth.otp = ui.auth.otp.slice(0,-1); else if(ui.auth.otp.length<4) ui.auth.otp += k; ui.auth.err=''; if(ui.auth.otp.length===4) return A.otpVerify(); render(); },
   otpInput(el){ ui.auth.otp = el.value.replace(/\D/g,'').slice(0,4); ui.auth.err=''; if(ui.auth.otp.length===4) A.otpVerify(); else render(); },
   otpVerify(){ if(ui.auth.otp==='0000'){ ui.auth.err='Невірний код. Спробуй ще раз або надішли новий.'; ui.auth.otp=''; render(); return; }
+    const uid=phoneUid(ui.auth.phone), c=Shared.data.clients[uid];
+    if(c){ openAccount(uid, c); track('login'); _clientSent=''; save(); ui.tab='home'; ui.auth={step:'splash',phone:'',otp:'',name:'',resendAt:0,err:''}; render();
+      setTimeout(()=>A.toast('З поверненням'+(c.name?', '+c.name:'')+'!'), 300); return; }
     ui.auth.step = 'profile'; render(); setTimeout(()=>$('#uname')?.focus(),60); },
   otpResend(){ if(now()<ui.auth.resendAt) return; ui.auth.resendAt=now()+30000; A.toast('Новий код надіслано на +48 '+ui.auth.phone); },
   toggleConsent(k){ state.consents[k]=!state.consents[k]; render(); },
   authFinish(e){ e?.preventDefault(); const name = ($('#uname')?.value||'').trim(); ui.auth.name=name;
     if(!state.consents.terms){ ui.auth.err='Потрібна згода з правилами та політикою конфіденційності'; render(); return; }
-    state.user = {id:'u_'+rid(10), phone:'+48 '+ui.auth.phone.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'), name:name, since:now()};
+    state.user = {id:phoneUid(ui.auth.phone), phone:'+48 '+ui.auth.phone.replace(/(\d{3})(\d{3})(\d{3})/,'$1 $2 $3'), name:name, since:now()};
+    state.welcomeGiven=true; state.points+=WELCOME_BONUS; state.ptsLog.unshift({at:now(), delta:WELCOME_BONUS, label:'Вітальний бонус'});
     track('signup'); save(); ui.tab='home'; render();
     setTimeout(()=>A.pushBanner('Вітаємо в SHAUMAN', `+${WELCOME_BONUS} шауманів вже на рахунку. Покажи QR на касі або зроби перше замовлення.`), 500); },
-  logout(){ state.user=null; ui.auth={step:'splash',phone:'',otp:'',name:'',resendAt:0,err:''}; ui.page=null; ui.sheet=null; save(); render(); },
+  logout(){ syncClient(); state={...defaultState(), settings:state.settings}; _clientSent=''; ui.auth={step:'splash',phone:'',otp:'',name:'',resendAt:0,err:''}; ui.page=null; ui.sheet=null; save(); render(); },
 
   /* меню */
   setCat(c){ const hadQ=!!ui.query; ui.menuCat=c; ui.query=''; if(hadQ) render(); else markCat(c); scrollToCat(c); },
