@@ -2238,7 +2238,7 @@ function ordersView(){
       <div class="stack">${o.lines.slice(0,2).map(l=>foodHTML(ITEM[l.id]?.img||'shaw_klas','')).join('')}</div>
       <span class="grow"><span class="row" style="gap:6px"><b class="small">${esc(o.id)}</b><span class="tag ${STATUS[o.status].cls}">${STATUS[o.status].t}</span></span><span class="xs muted">${dateStr(o.at)}, ${timeStr(o.at)} · ${esc(POINT[o.pointId].name)}</span></span>
       <span class="price">${fmt(o.total)}</span></button>`;
-  return `<header class="topbar"><h1 class="h1 grow" style="font-size:26px">Замовлення</h1><button class="icon-btn" aria-label="Профіль" onclick="A.tab('profile')">${icon('user')}</button></header>
+  return `<header class="topbar"><button class="icon-btn" aria-label="Назад до профілю" onclick="A.tab('profile')">${icon('back')}</button><h1 class="h1 grow" style="font-size:26px">Замовлення</h1></header>
     ${act.length?`<section><div class="sec-head"><h2 class="label">Зараз</h2></div>${act.map(orow).join('')}</section>`:''}
     ${favs.length?`<section class="sec"><div class="sec-head"><h2 class="label">Обране</h2></div><div class="hscroll">${favs.map(it=>pcard(it)).join('')}</div></section>`:''}
     <section class="sec"><div class="sec-head"><h2 class="label">Історія та чеки</h2></div>
@@ -2276,7 +2276,7 @@ function profileView(){
   return `<header class="topbar"><button class="av-btn lg" aria-label="Змінити аватарку" onclick="staffTap();A.sheet({type:'avatar'})">${avHTML()}<span class="av-edit" aria-hidden="true">${icon('refresh','xs')}</span></button><div class="hello"><b>${esc(u?.name||'Мій профіль')}</b><span>${esc(u?.phone||'')} · ${esc(tier.name)}</span></div></header>
     <section class="card inset sec">
       ${row('user','Аватарка', (AVATARS.find(a=>a.id===(state.avatar||'klas'))||AVATARS[0]).name, "A.sheet({type:'avatar'})")}
-      ${row('receipt','Замовлення та чеки','', "A.tab('orders')")}
+      ${row('receipt','Замовлення та чеки', activeOrders().length?'Зараз активних: '+activeOrders().length:'Історія, чеки, повтор замовлення', "A.tab('orders')")}
       ${row('heart','Обране', state.favs.length+' '+plural(state.favs.length,'позиція','позиції','позицій'), "A.tab('orders')")}
       ${row('pin','Точки на мапі','Завантаженість і години роботи', "A.sheet({type:'points'})")}
       ${row('card','Збережені картки', state.cards.length+' '+plural(state.cards.length,'картка','картки','карток'), "A.sheet({type:'cards'})")}
@@ -2376,10 +2376,10 @@ function wireMap(){
 /* ---------- shell + render ---------- */
 function navHTML(){
   const act=activeOrders().length;
-  const b=(k,ic,l)=>`<button aria-current="${ui.tab===k?'page':'false'}" onclick="A.tab('${k}')">${icon(ic)}<span>${l}</span>${k==='orders'&&act?'<span class="dot" aria-label="Є активне замовлення"></span>':''}</button>`;
+  const b=(k,ic,l)=>`<button aria-current="${ui.tab===k||(k==='profile'&&ui.tab==='orders')?'page':'false'}" onclick="A.tab('${k}')">${icon(ic)}<span>${l}</span>${k==='profile'&&act?'<span class="dot" aria-label="Є активне замовлення"></span>':''}</button>`;
   return `<nav class="nav" aria-label="Головна навігація">${b('home','home','Головна')}${b('menu','grid','Меню')}
     <button class="qr-btn" onclick="A.openQR()" aria-label="Мій QR для каси"><span class="box">${icon('qr','lg')}</span><span class="lbl">${nf(state.points)}</span></button>
-    ${b('orders','receipt','Замовлення')}${b('bonus','gift','Бонуси')}</nav>`;
+    ${b('bonus','gift','Бонуси')}${b('profile','user','Профіль')}</nav>`;
 }
 function cartbarHTML(){
   if(ui.page) return '';
