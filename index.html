@@ -998,6 +998,11 @@ textarea.input{resize:vertical;font-family:var(--f-body)}
 .av-lock{position:absolute;top:26px;left:50%;margin-left:-14px;width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:rgba(14,14,13,.85);color:#FFD000}
 .scan-client .av img{background:#E6E6E6}
 
+.ep{display:flex;flex-direction:column;align-items:center;gap:8px;margin:4px 0 18px}
+.ep-av .av{width:104px;height:104px;padding:4px}
+.ep-av .av-edit{width:32px;height:32px;right:2px;bottom:2px}
+.ep-av .av-edit svg{width:16px;height:16px}
+
 
 /* ===== СКРЕТЧ-КАРТКА ===== */
 #scrLayer{position:fixed;inset:0;z-index:200;pointer-events:none}
@@ -2274,7 +2279,7 @@ function bonusView(){
 function profileView(){
   const u=state.user; const tier=tierOf(state.spent);
   const row=(ic,t,sub,act,extra='')=>{ const m=/aria-checked="(true|false)"/.exec(extra); extra=extra.replace('role="switch" ','aria-hidden="true" '); return `<button class="list-row" ${m?`role="switch" aria-checked="${m[1]}"`:''} onclick="${act}"><span class="ic">${icon(ic,'sm')}</span><span class="grow"><b class="small">${t}</b>${sub?`<br><span class="xs muted">${sub}</span>`:''}</span>${extra||icon('chev','sm')}</button>`; };
-  return `<header class="topbar"><button class="av-btn lg" aria-label="Змінити аватарку" onclick="staffTap();A.sheet({type:'avatar'})">${avHTML()}<span class="av-edit" aria-hidden="true">${icon('edit','xs')}</span></button><div class="hello"><b>${esc(u?.name||'Мій профіль')}</b><span>${esc(u?.phone||'')} · ${esc(tier.name)}</span></div></header>
+  return `<header class="topbar"><button class="av-btn lg" aria-label="Редагувати профіль" onclick="staffTap();A.sheet({type:'editProfile'})">${avHTML()}<span class="av-edit" aria-hidden="true">${icon('edit','xs')}</span></button><div class="hello"><b>${esc(u?.name||'Мій профіль')}</b><span>${esc(u?.phone||'')} · ${esc(tier.name)}</span></div></header>
     <section class="card inset sec">
       ${row('user','Аватарка', (AVATARS.find(a=>a.id===(state.avatar||'klas'))||AVATARS[0]).name, "A.sheet({type:'avatar'})")}
       ${row('receipt','Замовлення та чеки', activeOrders().length?'Зараз активних: '+activeOrders().length:'Історія, чеки, повтор замовлення', "A.tab('orders')")}
@@ -2628,7 +2633,17 @@ EXTRA_SHEETS.avatar = () => { const cur = state.avatar || 'klas';
       return `<button class="av-pick ${open ? '' : 'locked'}" role="radio" aria-checked="${cur === a.id}" aria-label="${esc(a.name)}${open ? '' : ' — ' + esc(a.hint)}" onclick="X.setAvatar('${a.id}')">
         ${avHTML(a.id)}${open ? '' : `<span class="av-lock">${icon('lock', 'sm')}</span>`}<span class="xs">${esc(a.name)}</span></button>`; }).join('')}</div>` }; };
 X.setAvatar = id => { const a = AVATARS.find(x => x.id === id); if (!a) return; if (!avOpen(a)) return A.toast(a.hint);
-  state.avatar = id; save(); ui.sheet = null; render(); A.toast('Аватарка: ' + a.name); };
+  state.avatar = id; save(); ui.sheet = ui.sheet?.back ? { type: 'editProfile', name: ui.sheet.name } : null; render(); A.toast('Аватарка: ' + a.name); };
+/* редагування профілю: аватар (натиснути — всі аватарки) + ім'я */
+EXTRA_SHEETS.editProfile = s => ({ title: 'Мій профіль', body: `<div class="ep">
+    <button class="av-btn ep-av" aria-label="Змінити аватарку" onclick="X.pickAvatar()">${avHTML()}<span class="av-edit" aria-hidden="true">${icon('edit', 'xs')}</span></button>
+    <span class="xs muted">Натисни на аватарку, щоб змінити</span></div>
+    <form onsubmit="X.saveProfile(event)"><label for="epName" class="xs muted">Ім'я</label>
+      <input id="epName" class="input" maxlength="30" autocomplete="given-name" value="${esc(s.name ?? state.user?.name ?? '')}" placeholder="Як до тебе звертатись">
+      <button class="btn btn-primary btn-block" style="margin-top:14px">Зберегти</button></form>` });
+X.pickAvatar = () => { ui.sheet = { type: 'avatar', back: true, name: document.getElementById('epName')?.value }; render(); };
+X.saveProfile = e => { e?.preventDefault(); const n = (document.getElementById('epName')?.value || '').trim().replace(/\s+/g, ' ');
+  if (n.length < 2) return A.toast("Ім'я — щонайменше 2 літери"); if (state.user) state.user.name = n; save(); ui.sheet = null; render(); A.toast('Профіль збережено'); };
 
 
 /* ---------------- СКРЕТЧ-КАРТКА: приз після покупки ----------------
